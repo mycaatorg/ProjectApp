@@ -1,12 +1,18 @@
 "use client";
 import React from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
-export default function LoginPage() {
-  const handleLogin = (event: React.FormEvent) => {
-    event.preventDefault();
-    console.log("Logging in...");
-  };
+export default function RegisterPage() {
+        const router = useRouter();
+
+        const handleRegister = (event: React.FormEvent) => {
+                event.preventDefault(); // Prevent the default form submission
+                console.log("Navigating to setup page...");
+
+                // Navigate to setup page
+                router.push("/auth/setup");
+        };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -22,7 +28,7 @@ export default function LoginPage() {
             Register
           </h1>
 
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form onSubmit={handleRegister} className="space-y-4">
             <div>
               <label htmlFor="email" className="block text-sm text-white">
                 Email
