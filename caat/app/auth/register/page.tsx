@@ -5,10 +5,11 @@ import { useRouter } from "next/navigation";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null); // Success message
+  const [error, setError] = useState<string | null>(null); // Error message
 
   const handleRegister = async (event: React.FormEvent) => {
-    event.preventDefault(); // Prevent the default form submission
+    event.preventDefault();
 
     // Extract form data
     const form = event.target as HTMLFormElement;
@@ -32,12 +33,16 @@ export default function RegisterPage() {
         throw new Error(errorData.message || "Registration failed");
       }
 
-      // If successful, navigate to the setup page
-      console.log("Navigating to setup page...");
-      router.push("/auth/setup");
+      // If successful, show success message and navigate
+      setMessage("Registration successful!");
+      setError(null); // Clear any previous errors
+      setTimeout(() => {
+        router.push("/auth/setup"); // Navigate to setup page
+      }, 2000); // Delay navigation for user to see the message
     } catch (err) {
       console.error("Error:", err);
 
+      setMessage(null); // Clear any previous success message
       if (err instanceof Error) {
         setError(err.message);
       } else {
@@ -60,6 +65,10 @@ export default function RegisterPage() {
             Register
           </h1>
 
+          {/* Display Success or Error Messages */}
+          {message && (
+            <p className="text-center text-sm text-green-700 mb-4">{message}</p>
+          )}
           {error && (
             <p className="text-center text-sm text-red-700 mb-4">{error}</p>
           )}
