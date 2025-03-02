@@ -1,6 +1,8 @@
-import { Request, Response, Router } from 'express';
-import bcrypt from 'bcrypt';
+import { Request, Response, Router, NextFunction } from 'express';
+import * as bcrypt from 'bcrypt';
+import * as jwt from 'jsonwebtoken';
 import User from '../models/User';
+import authenticateToken from '../middleware/auth';
 
 const router = Router();
 
@@ -58,11 +60,54 @@ router.post(
         return;
       }
 
-      // If the login is successful
-      res.status(200).json({ message: 'Login successful!' });
+      // Generate a JWT token
+      const token = jwt.sign(
+        { userId: user._id, email: user.email }, // Payload
+        process.env.JWT_SECRET!, // Secret key
+        { expiresIn: '1h' } // Token expiration time
+      );
+
+      // Respond with the token and user data
+      res.status(200).json({
+        message: 'Login successful!',
+        token, // Send the generated token
+        user: {
+          id: user._id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+        },
+      });
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: 'Server error' });
+    }
+  }
+);
+
+router.get(
+  "/dashboard",
+  authenticateToken,
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      // Ensure `req.user` exists & has `userId`
+      const userId = (req as any).user?.userId;
+      if (!userId) {
+        res.status(401).json({ message: "Unauthorized" });
+        return;
+      }
+
+      // Query user from MongoDB
+      const user = await User.findById(userId).select("-password");
+      if (!user) {
+        res.status(404).json({ message: "User not found" });
+        return;
+      }
+
+      res.status(200).json({ user });
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error);
+      next(error); // Pass error to Express error handler
     }
   }
 );
