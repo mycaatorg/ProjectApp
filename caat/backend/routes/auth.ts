@@ -1,5 +1,5 @@
 import { Request, Response, Router, NextFunction } from 'express';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
 import User from '../models/User';
 import authenticateToken from '../middleware/auth';
