@@ -11,7 +11,10 @@ const app = express();
 
 // Middleware to enable CORS
 app.use(cors({
-  origin: ['http://localhost:3000'], // Allow your frontend
+  origin: ['http://mycaat.com',
+          "https://project-app-flax.vercel.app", // Vercel frontend
+          "http://localhost:3000"
+  ], // Allow frontend
   methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allow all necessary methods
   allowedHeaders: ['Content-Type', 'Authorization'], // Allow headers needed for the frontend
   credentials: true, // Allow cookies or credentials if required
