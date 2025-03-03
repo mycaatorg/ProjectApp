@@ -18,7 +18,7 @@ export default function LoginPage() {
 
     try {
       // Send login data to backend
-      const response = await fetch("http://localhost:5000/api/auth/login", {
+      const response = await fetch("https://caat-projectapp.onrender.com/api/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -31,21 +31,22 @@ export default function LoginPage() {
         throw new Error(errorData.message || "Login failed");
       }
 
-      // If successful, show success message and navigate
+      const data = await response.json(); // Parse JSON response
+
+      // Save token in localStorage or sessionStorage
+      localStorage.setItem("token", data.token);
+
+      // Show success message and redirect
       setMessage("Login successful!");
-      setError(null); // Clear any previous errors
+      setError(null);
       setTimeout(() => {
-        router.push("/dashboard"); // Adjust route as needed
-      }, 2000); // Delay navigation for user to see message
+        router.push("/dashboard"); // Redirect to dashboard
+      }, 2000);
     } catch (err) {
       console.error("Error:", err);
 
-      setMessage(null); // Clear any previous success message
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("An unexpected error occurred.");
-      }
+      setMessage(null); // Clear success message
+      setError(err instanceof Error ? err.message : "An unexpected error occurred.");
     }
   };
 
@@ -59,23 +60,15 @@ export default function LoginPage() {
 
         {/* Login Form */}
         <div className="bg-red-500 p-6 rounded-md shadow-lg w-full max-w-md">
-          <h1 className="text-center text-2xl font-semibold text-white mb-4">
-            Login
-          </h1>
+          <h1 className="text-center text-2xl font-semibold text-white mb-4">Login</h1>
 
           {/* Display Success or Error Messages */}
-          {message && (
-            <p className="text-center text-sm text-green-700 mb-4">{message}</p>
-          )}
-          {error && (
-            <p className="text-center text-sm text-red-700 mb-4">{error}</p>
-          )}
+          {message && <p className="text-center text-sm text-green-700 mb-4">{message}</p>}
+          {error && <p className="text-center text-sm text-red-700 mb-4">{error}</p>}
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label htmlFor="email" className="block text-sm text-white">
-                Email
-              </label>
+              <label htmlFor="email" className="block text-sm text-white">Email</label>
               <input
                 type="email"
                 id="email"
@@ -85,9 +78,7 @@ export default function LoginPage() {
               />
             </div>
             <div>
-              <label htmlFor="password" className="block text-sm text-white">
-                Password
-              </label>
+              <label htmlFor="password" className="block text-sm text-white">Password</label>
               <input
                 type="password"
                 id="password"
@@ -106,9 +97,7 @@ export default function LoginPage() {
 
           <p className="text-center text-sm mt-4 text-white">
             Don’t have an account?{" "}
-            <a href="/auth/register" className="text-black hover:underline">
-              Register
-            </a>
+            <a href="/auth/register" className="text-black hover:underline">Register</a>
           </p>
         </div>
       </div>
