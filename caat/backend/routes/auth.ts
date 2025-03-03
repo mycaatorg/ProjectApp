@@ -85,31 +85,37 @@ router.post(
   }
 );
 
-router.get(
-  "/dashboard",
-  authenticateToken,
-  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      // Ensure `req.user` exists & has `userId`
-      const userId = (req as any).user?.userId;
-      if (!userId) {
-        res.status(401).json({ message: "Unauthorized" });
-        return;
-      }
-
-      // Query user from MongoDB
-      const user = await User.findById(userId).select("-password");
-      if (!user) {
-        res.status(404).json({ message: "User not found" });
-        return;
-      }
-
-      res.status(200).json({ user });
-    } catch (error) {
-      console.error("Error fetching dashboard data:", error);
-      next(error); // Pass error to Express error handler
+// Route to update user profile
+router.put("/profile", authenticateToken, async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = (req as any).user?.userId; // Ensure token is correctly extracted
+    if (!userId) {
+      res.status(401).json({ message: "Unauthorized" });
+      return;
     }
+
+    const { name, age, email, school, major } = req.body;
+
+    // Update user in MongoDB
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { name, age, email, school, major },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedUser) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    res.status(200).json({ message: "Profile updated successfully!", user: updatedUser });
+    return;
+  } catch (error) {
+    console.error("Error updating profile:", error);
+    res.status(500).json({ message: "Server error" });
+    return;
   }
-);
+});
+
 
 export default router;

@@ -4,20 +4,18 @@ import User from "../models/User";
 
 const router = Router();
 
+// GET /dashboard - Fetch authenticated user's profile
 router.get(
-  "/",
-  (req: Request, res: Response, next: NextFunction) =>
-    authenticateToken(req, res, next), // ✅ Ensure Express handles middleware properly
+  "/dashboard",
+  authenticateToken,
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      // ✅ Ensure `req.user` exists & has `userId`
       const userId = (req as any).user?.userId;
       if (!userId) {
         res.status(401).json({ message: "Unauthorized" });
         return;
       }
 
-      // ✅ Query user from MongoDB
       const user = await User.findById(userId).select("-password");
       if (!user) {
         res.status(404).json({ message: "User not found" });
@@ -27,7 +25,33 @@ router.get(
       res.status(200).json({ user });
     } catch (error) {
       console.error("Error fetching user data:", error);
-      next(error); // ✅ Pass error to Express error handler
+      next(error);
+    }
+  }
+);
+
+// GET /profile - Fetch authenticated user's profile (used in frontend)
+router.get(
+  "/profile",
+  authenticateToken,
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const userId = (req as any).user?.userId;
+      if (!userId) {
+        res.status(401).json({ message: "Unauthorized" });
+        return;
+      }
+
+      const user = await User.findById(userId).select("-password");
+      if (!user) {
+        res.status(404).json({ message: "User not found" });
+        return;
+      }
+
+      res.status(200).json({ user });
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      next(error);
     }
   }
 );
