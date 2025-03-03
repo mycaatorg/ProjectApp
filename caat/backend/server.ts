@@ -17,7 +17,8 @@ app.use(cors({
   ], // Allow frontend
   methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allow all necessary methods
   allowedHeaders: ['Content-Type', 'Authorization'], // Allow headers needed for the frontend
-  credentials: true, // Allow cookies or credentials if required
+  credentials: true,
+  preflightContinue: false, // Allow cookies or credentials if required
 }));
 
 // Middleware to parse JSON
