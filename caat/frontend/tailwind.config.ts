@@ -1,18 +1,21 @@
 import type { Config } from "tailwindcss";
 
-export default {
+const config: Config = {
   content: [
-    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./app/**/*.{js,ts,jsx,tsx,mdx}", // Covers all Next.js App Router files
+    "./components/**/*.{js,ts,jsx,tsx,mdx}", // Ensures Tailwind works in reusable components
+    "./public/**/*.html" // Covers static HTML files (if applicable)
   ],
   theme: {
     extend: {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        mainCustomColor: "#BD2031" // Keeping custom color from previous config
       },
     },
   },
   plugins: [],
-} satisfies Config;
+};
+
+export default config;
