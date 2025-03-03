@@ -11,15 +11,16 @@ const app = express();
 
 // Middleware to enable CORS
 app.use(cors({
-  origin: ['http://mycaat.com',
+  origin: ['https://mycaat.com',
           "https://project-app-flax.vercel.app", // Vercel frontend
           "http://localhost:3000"
   ], // Allow frontend
-  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allow all necessary methods
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allow all necessary methods
   allowedHeaders: ['Content-Type', 'Authorization'], // Allow headers needed for the frontend
   credentials: true,
-  preflightContinue: false, // Allow cookies or credentials if required
 }));
+
+app.options("*", cors());
 
 // Middleware to parse JSON
 app.use(express.json());
