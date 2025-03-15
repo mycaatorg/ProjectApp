@@ -56,4 +56,33 @@ router.get(
   }
 );
 
+router.put(
+  "/profile",
+  authenticateToken,
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const userId = (req as any).user?.userId;
+      if (!userId) {
+        res.status(401).json({ message: "Unauthorized" });
+        return;
+      }
+
+      const updateFields = req.body;
+
+      const updatedUser = await User.findByIdAndUpdate(userId, { $set: updateFields }, { new: true, runValidators: true });
+
+      if (!updatedUser) {
+        res.status(404).json({ message: "User not found" });
+        return;
+      }
+
+      res.status(200).json({ message: "Profile updated successfully!", user: updatedUser });
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      next(error);
+    }
+  }
+);
+
+
 export default router;
