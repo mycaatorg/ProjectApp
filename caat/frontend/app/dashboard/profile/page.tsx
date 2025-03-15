@@ -33,11 +33,11 @@ export default function MyProfilePage() {
         console.log("Profile API Response:", responseData); // Debugging Log
 
         setUserData({
-          name: responseData?.name || "",
-          age: responseData?.age || "",
-          email: responseData?.email || "",
-          school: responseData?.school || "",
-          major: responseData?.major || "",
+          name: responseData?.user?.name || "",
+          age: responseData?.user?.age || "",
+          email: responseData?.user?.email || "",
+          school: responseData?.user?.school || "",
+          major: responseData?.user?.major || "",
         });
       } else {
         console.error("Failed to fetch profile data");
@@ -65,11 +65,11 @@ export default function MyProfilePage() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ [field]: value }), // Only update the field being changed
+        body: JSON.stringify({ [field]: value }),
       });
 
       if (response.ok) {
-        fetchData(); // 🔄 Re-fetch profile after update
+        await fetchData(); // Re-fetch profile after update
       } else {
         console.error("Failed to update profile");
       }
@@ -84,38 +84,36 @@ export default function MyProfilePage() {
       {isLoading ? (
         <p>Loading...</p>
       ) : (
-        <>
-          <table className="table-auto w-full mb-6 border border-gray-300">
-            <thead className="bg-gray-200">
-              <tr>
-                <th className="px-4 py-2 text-left">Field</th>
-                <th className="px-4 py-2 text-left">Value</th>
-                <th className="px-4 py-2 text-left">Actions</th>
+        <table className="table-auto w-full mb-6 border border-gray-300">
+          <thead className="bg-gray-200">
+            <tr>
+              <th className="px-4 py-2 text-left">Field</th>
+              <th className="px-4 py-2 text-left">Value</th>
+              <th className="px-4 py-2 text-left">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {Object.entries(userData).map(([key, value]) => (
+              <tr key={key}>
+                <td className="px-4 py-2 border">{key.charAt(0).toUpperCase() + key.slice(1)}</td>
+                <td className="px-4 py-2 border">{value}</td>
+                <td className="px-4 py-2 border">
+                  <button
+                    onClick={async () => {
+                      const newValue = prompt(`Edit ${key}`, value);
+                      if (newValue !== null) {
+                        await handleEdit(key as keyof typeof userData, newValue);
+                      }
+                    }}
+                    className="text-blue-600 hover:underline"
+                  >
+                    Edit
+                  </button>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {Object.entries(userData).map(([key, value]) => (
-                <tr key={key}>
-                  <td className="px-4 py-2 border">{key.charAt(0).toUpperCase() + key.slice(1)}</td>
-                  <td className="px-4 py-2 border">{value}</td>
-                  <td className="px-4 py-2 border">
-                    <button
-                      onClick={() => {
-                        const newValue = prompt(`Edit ${key}`, value);
-                        if (newValue !== null) {
-                          handleEdit(key as keyof typeof userData, newValue);
-                        }
-                      }}
-                      className="text-blue-600 hover:underline"
-                    >
-                      Edit
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </>
+            ))}
+          </tbody>
+        </table>
       )}
     </div>
   );
