@@ -12,6 +12,7 @@ export default function MyProfilePage() {
   });
 
   const [isLoading, setIsLoading] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://caat-projectapp.onrender.com";
 
   // Fetch user data from backend
@@ -30,8 +31,6 @@ export default function MyProfilePage() {
 
       if (response.ok) {
         const responseData = await response.json();
-        console.log("Profile API Response:", responseData); // Debugging Log
-
         setUserData({
           name: responseData?.user?.name || "",
           age: responseData?.user?.age || "",
@@ -51,10 +50,10 @@ export default function MyProfilePage() {
 
   useEffect(() => {
     fetchData();
-  }, [API_BASE_URL]);
+  }, []);
 
   // Handle field editing & update request
-  const handleEdit = async (field: keyof typeof userData, value: string) => {
+  const handleEdit = async () => {
     const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
     if (!token) return;
 
@@ -65,11 +64,12 @@ export default function MyProfilePage() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ [field]: value }),
+        body: JSON.stringify(userData),
       });
 
       if (response.ok) {
-        await fetchData(); // Re-fetch profile after update
+        setIsEditing(false); // Exit edit mode after saving
+        fetchData(); // Refresh profile data
       } else {
         console.error("Failed to update profile");
       }
@@ -79,41 +79,94 @@ export default function MyProfilePage() {
   };
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">My Profile</h1>
+    <div className="p-6 max-w-lg mx-auto bg-gray-100 rounded-lg shadow-md">
+      <div className="flex justify-between items-center mb-4 bg-gray-50 p-4 rounded-md">
+        <h1 className="text-xl font-semibold text-gray-800">Welcome {userData.name}!</h1>
+        {!isEditing && (
+          <button
+            onClick={() => setIsEditing(true)}
+            className="text-blue-600 hover:underline text-sm"
+          >
+            Edit Profile
+          </button>
+        )}
+      </div>
+
       {isLoading ? (
         <p>Loading...</p>
       ) : (
-        <table className="table-auto w-full mb-6 border border-gray-300">
-          <thead className="bg-gray-200">
-            <tr>
-              <th className="px-4 py-2 text-left">Field</th>
-              <th className="px-4 py-2 text-left">Value</th>
-              <th className="px-4 py-2 text-left">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {Object.entries(userData).map(([key, value]) => (
-              <tr key={key}>
-                <td className="px-4 py-2 border">{key.charAt(0).toUpperCase() + key.slice(1)}</td>
-                <td className="px-4 py-2 border">{value}</td>
-                <td className="px-4 py-2 border">
-                  <button
-                    onClick={async () => {
-                      const newValue = prompt(`Edit ${key}`, value);
-                      if (newValue !== null) {
-                        await handleEdit(key as keyof typeof userData, newValue);
-                      }
-                    }}
-                    className="text-blue-600 hover:underline"
-                  >
-                    Edit
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="space-y-3">
+          <div>
+            <label className="text-gray-700 font-medium">NickName</label>
+            <input
+              type="text"
+              className="w-full p-2 border rounded-md"
+              value={userData.name}
+              onChange={(e) => setUserData({ ...userData, name: e.target.value })}
+              disabled={!isEditing}
+            />
+          </div>
+
+          <div>
+            <label className="text-gray-700 font-medium">Age</label>
+            <input
+              type="number"
+              className="w-full p-2 border rounded-md"
+              value={userData.age}
+              onChange={(e) => setUserData({ ...userData, age: e.target.value })}
+              disabled={!isEditing}
+            />
+          </div>
+
+          <div>
+            <label className="text-gray-700 font-medium">Email</label>
+            <input
+              type="email"
+              className="w-full p-2 border rounded-md"
+              value={userData.email}
+              disabled // Email shouldn't be editable
+            />
+          </div>
+
+          <div>
+            <label className="text-gray-700 font-medium">School</label>
+            <input
+              type="text"
+              className="w-full p-2 border rounded-md"
+              value={userData.school}
+              onChange={(e) => setUserData({ ...userData, school: e.target.value })}
+              disabled={!isEditing}
+            />
+          </div>
+
+          <div>
+            <label className="text-gray-700 font-medium">Major</label>
+            <input
+              type="text"
+              className="w-full p-2 border rounded-md"
+              value={userData.major}
+              onChange={(e) => setUserData({ ...userData, major: e.target.value })}
+              disabled={!isEditing}
+            />
+          </div>
+
+          {isEditing && (
+            <div className="flex justify-end space-x-3 mt-4">
+              <button
+                onClick={() => setIsEditing(false)}
+                className="bg-gray-400 text-white px-4 py-2 rounded-md hover:bg-gray-500"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleEdit}
+                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+              >
+                Save
+              </button>
+            </div>
+          )}
+        </div>
       )}
     </div>
   );
