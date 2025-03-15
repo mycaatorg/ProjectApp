@@ -5,6 +5,10 @@ export interface IUser extends Document {
   lastName: string;
   email: string;
   password: string;
+  name?: string;
+  age?: number;
+  school?: string;
+  major?: string;
 }
 
 const UserSchema: Schema = new Schema(
@@ -13,9 +17,13 @@ const UserSchema: Schema = new Schema(
     lastName: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
+    name: { type: String, default: "" }, // New field
+    age: { type: Number, default: null }, // New field
+    school: { type: String, default: "" }, // New field
+    major: { type: String, default: "" }, // New field
   },
   {
-    timestamps: true,
+    timestamps: true, // Automatically adds `createdAt` and `updatedAt`
   }
 );
 
