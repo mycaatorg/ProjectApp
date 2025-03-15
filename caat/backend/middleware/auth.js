@@ -1,4 +1,4 @@
-cd"use strict";
+"use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const jsonwebtoken_1 = require("jsonwebtoken");
 const authenticateToken = (req, res, next) => {
