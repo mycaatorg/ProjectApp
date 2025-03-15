@@ -3,6 +3,8 @@ import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import authRoutes from './routes/auth';
+import dashboardRoutes from './routes/dashboard';
+
 
 // Load environment variables
 dotenv.config();
@@ -33,6 +35,7 @@ mongoose
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/user', dashboardRoutes);
 
 // Start the server
 const PORT = process.env.PORT || 5000;
