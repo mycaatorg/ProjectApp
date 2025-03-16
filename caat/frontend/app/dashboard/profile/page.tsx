@@ -11,13 +11,17 @@ export default function MyProfilePage() {
     major: "",
   });
 
+  const [originalData, setOriginalData] = useState(userData);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://caat-projectapp.onrender.com";
+  const API_BASE_URL =
+    process.env.NEXT_PUBLIC_API_BASE_URL ||
+    "https://caat-projectapp.onrender.com";
 
   // Fetch user data from backend
   const fetchData = async () => {
-    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    const token =
+      typeof window !== "undefined" ? localStorage.getItem("token") : null;
     if (!token) return;
 
     try {
@@ -38,6 +42,7 @@ export default function MyProfilePage() {
           school: responseData?.user?.school || "",
           major: responseData?.user?.major || "",
         });
+        setOriginalData(responseData?.user); // Save original data
       } else {
         console.error("Failed to fetch profile data");
       }
@@ -52,9 +57,10 @@ export default function MyProfilePage() {
     fetchData();
   }, []);
 
-  // Handle field editing & update request
-  const handleEdit = async () => {
-    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  // Handle saving edited data
+  const handleSave = async () => {
+    const token =
+      typeof window !== "undefined" ? localStorage.getItem("token") : null;
     if (!token) return;
 
     try {
@@ -68,7 +74,7 @@ export default function MyProfilePage() {
       });
 
       if (response.ok) {
-        setIsEditing(false); // Exit edit mode after saving
+        setIsEditing(false); // Exit edit mode
         fetchData(); // Refresh profile data
       } else {
         console.error("Failed to update profile");
@@ -78,10 +84,18 @@ export default function MyProfilePage() {
     }
   };
 
+  // Handle canceling edits
+  const handleCancel = () => {
+    setUserData(originalData); // Restore original data
+    setIsEditing(false);
+  };
+
   return (
     <div className="p-6 max-w-lg mx-auto bg-gray-100 rounded-lg shadow-md">
       <div className="flex justify-between items-center mb-4 bg-gray-50 p-4 rounded-md">
-        <h1 className="text-xl font-semibold text-gray-800">Welcome {userData.name}!</h1>
+        <h1 className="text-xl font-semibold text-gray-800">
+          Welcome {userData.name}!
+        </h1>
         {!isEditing && (
           <button
             onClick={() => setIsEditing(true)}
@@ -102,7 +116,9 @@ export default function MyProfilePage() {
               type="text"
               className="w-full p-2 border rounded-md"
               value={userData.name}
-              onChange={(e) => setUserData({ ...userData, name: e.target.value })}
+              onChange={(e) =>
+                setUserData({ ...userData, name: e.target.value })
+              }
               disabled={!isEditing}
             />
           </div>
@@ -113,7 +129,9 @@ export default function MyProfilePage() {
               type="number"
               className="w-full p-2 border rounded-md"
               value={userData.age}
-              onChange={(e) => setUserData({ ...userData, age: e.target.value })}
+              onChange={(e) =>
+                setUserData({ ...userData, age: e.target.value })
+              }
               disabled={!isEditing}
             />
           </div>
@@ -134,7 +152,9 @@ export default function MyProfilePage() {
               type="text"
               className="w-full p-2 border rounded-md"
               value={userData.school}
-              onChange={(e) => setUserData({ ...userData, school: e.target.value })}
+              onChange={(e) =>
+                setUserData({ ...userData, school: e.target.value })
+              }
               disabled={!isEditing}
             />
           </div>
@@ -145,7 +165,9 @@ export default function MyProfilePage() {
               type="text"
               className="w-full p-2 border rounded-md"
               value={userData.major}
-              onChange={(e) => setUserData({ ...userData, major: e.target.value })}
+              onChange={(e) =>
+                setUserData({ ...userData, major: e.target.value })
+              }
               disabled={!isEditing}
             />
           </div>
@@ -153,13 +175,13 @@ export default function MyProfilePage() {
           {isEditing && (
             <div className="flex justify-end space-x-3 mt-4">
               <button
-                onClick={() => setIsEditing(false)}
+                onClick={handleCancel}
                 className="bg-gray-400 text-white px-4 py-2 rounded-md hover:bg-gray-500"
               >
                 Cancel
               </button>
               <button
-                onClick={handleEdit}
+                onClick={handleSave}
                 className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
               >
                 Save
