@@ -9,20 +9,16 @@ export default function MyProfilePage() {
     email: "",
     school: "",
     major: "",
-    profilePicture: "", // New field for profile picture
+    profilePicture: "", // Added for profile picture
   });
 
-  const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [originalData, setOriginalData] = useState(userData);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null); // Store uploaded file
   const API_BASE_URL =
     process.env.NEXT_PUBLIC_API_BASE_URL ||
     "https://caat-projectapp.onrender.com";
-
-  useEffect(() => {
-    fetchData();
-  }, []);
 
   // Fetch user data from backend
   const fetchData = async () => {
@@ -47,7 +43,7 @@ export default function MyProfilePage() {
           email: responseData?.user?.email || "",
           school: responseData?.user?.school || "",
           major: responseData?.user?.major || "",
-          profilePicture: responseData?.user?.profilePicture || "",
+          profilePicture: responseData?.user?.profilePicture || "", // Fetch profile pic
         });
         setOriginalData(responseData?.user);
       } else {
@@ -60,40 +56,15 @@ export default function MyProfilePage() {
     }
   };
 
-  // Handle Image Upload
-  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files && event.target.files[0]) {
-      setSelectedImage(event.target.files[0]);
-      setUserData({ ...userData, profilePicture: URL.createObjectURL(event.target.files[0]) });
-    }
-  };
+  useEffect(() => {
+    fetchData();
+  }, []);
 
-  // Handle Saving Profile (Including Image Upload)
+  // Handle saving edited data
   const handleSave = async () => {
     const token =
       typeof window !== "undefined" ? localStorage.getItem("token") : null;
     if (!token) return;
-
-    let imageUrl = userData.profilePicture;
-    
-    if (selectedImage) {
-      const formData = new FormData();
-      formData.append("file", selectedImage);
-
-      const uploadResponse = await fetch(`${API_BASE_URL}/api/user/upload-profile-pic`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData,
-      });
-
-      if (uploadResponse.ok) {
-        const uploadData = await uploadResponse.json();
-        imageUrl = uploadData.imageUrl;
-      } else {
-        console.error("Image upload failed");
-        return;
-      }
-    }
 
     try {
       const response = await fetch(`${API_BASE_URL}/api/user/profile`, {
@@ -102,7 +73,7 @@ export default function MyProfilePage() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ ...userData, profilePicture: imageUrl }),
+        body: JSON.stringify(userData),
       });
 
       if (response.ok) {
@@ -116,60 +87,164 @@ export default function MyProfilePage() {
     }
   };
 
+  // Handle profile picture upload
+  const handleImageUpload = async () => {
+    if (!imageFile) return;
+
+    const formData = new FormData();
+    formData.append("file", imageFile);
+
+    const token =
+      typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    if (!token) return;
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/user/profile/upload`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (response.ok) {
+        const responseData = await response.json();
+        setUserData({ ...userData, profilePicture: responseData.user.profilePicture });
+        setImageFile(null);
+      } else {
+        console.error("Failed to upload profile picture");
+      }
+    } catch (error) {
+      console.error("Error uploading profile picture:", error);
+    }
+  };
+
   return (
     <div className="p-6 max-w-lg mx-auto bg-gray-100 rounded-lg shadow-md">
-      <div className="flex flex-col items-center">
-        {/* Profile Picture Upload */}
-        <label htmlFor="profile-upload" className="cursor-pointer relative">
-          <img
-            src={userData.profilePicture || "https://via.placeholder.com/150"}
-            alt="Profile"
-            className="w-24 h-24 object-cover rounded-full border-4 border-gray-300 shadow-md"
-          />
+      <div className="flex justify-between items-center mb-4 bg-gray-50 p-4 rounded-md">
+        <h1 className="text-xl font-semibold text-gray-800">
+          Welcome {userData.name}!
+        </h1>
+        {!isEditing && (
+          <button
+            onClick={() => setIsEditing(true)}
+            className="text-blue-600 hover:underline text-sm"
+          >
+            Edit Profile
+          </button>
+        )}
+      </div>
+
+      {isLoading ? (
+        <p>Loading...</p>
+      ) : (
+        <div className="space-y-3">
+          {/* Profile Picture Upload */}
+          <div className="flex flex-col items-center">
+            <img
+              src={userData.profilePicture || "/default-profile.png"}
+              alt="Profile"
+              className="w-24 h-24 rounded-full object-cover border-2 border-gray-300"
+            />
+            {isEditing && (
+              <div className="mt-2">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+                />
+                <button
+                  onClick={handleImageUpload}
+                  className="bg-blue-600 text-white px-3 py-1 rounded-md mt-2 hover:bg-blue-700"
+                >
+                  Upload
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* User Fields */}
+          <div>
+            <label className="text-gray-700 font-medium">NickName</label>
+            <input
+              type="text"
+              className="w-full p-2 border rounded-md"
+              value={userData.name}
+              onChange={(e) =>
+                setUserData({ ...userData, name: e.target.value })
+              }
+              disabled={!isEditing}
+            />
+          </div>
+
+          <div>
+            <label className="text-gray-700 font-medium">Age</label>
+            <input
+              type="number"
+              className="w-full p-2 border rounded-md"
+              value={userData.age}
+              onChange={(e) =>
+                setUserData({ ...userData, age: e.target.value })
+              }
+              disabled={!isEditing}
+            />
+          </div>
+
+          <div>
+            <label className="text-gray-700 font-medium">Email</label>
+            <input
+              type="email"
+              className="w-full p-2 border rounded-md"
+              value={userData.email}
+              disabled
+            />
+          </div>
+
+          <div>
+            <label className="text-gray-700 font-medium">School</label>
+            <input
+              type="text"
+              className="w-full p-2 border rounded-md"
+              value={userData.school}
+              onChange={(e) =>
+                setUserData({ ...userData, school: e.target.value })
+              }
+              disabled={!isEditing}
+            />
+          </div>
+
+          <div>
+            <label className="text-gray-700 font-medium">Major</label>
+            <input
+              type="text"
+              className="w-full p-2 border rounded-md"
+              value={userData.major}
+              onChange={(e) =>
+                setUserData({ ...userData, major: e.target.value })
+              }
+              disabled={!isEditing}
+            />
+          </div>
+
           {isEditing && (
-            <span className="absolute bottom-0 right-0 bg-gray-600 text-white text-xs px-2 py-1 rounded-full">
-              Edit
-            </span>
+            <div className="flex justify-end space-x-3 mt-4">
+              <button
+                onClick={() => {
+                  setUserData(originalData);
+                  setIsEditing(false);
+                }}
+                className="bg-gray-400 text-white px-4 py-2 rounded-md hover:bg-gray-500"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSave}
+                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+              >
+                Save
+              </button>
+            </div>
           )}
-        </label>
-        <input
-          type="file"
-          id="profile-upload"
-          className="hidden"
-          accept="image/*"
-          onChange={handleImageChange}
-        />
-        <p className="text-sm text-gray-500 mt-2">Click to upload</p>
-      </div>
-
-      <div className="mt-6 space-y-3">
-        <div>
-          <label className="text-gray-700 font-medium">Nickname</label>
-          <input
-            type="text"
-            className="w-full p-2 border rounded-md"
-            value={userData.name}
-            onChange={(e) => setUserData({ ...userData, name: e.target.value })}
-            disabled={!isEditing}
-          />
-        </div>
-        {/* Other input fields remain unchanged */}
-      </div>
-
-      {isEditing && (
-        <div className="flex justify-end space-x-3 mt-4">
-          <button
-            onClick={() => setIsEditing(false)}
-            className="bg-gray-400 text-white px-4 py-2 rounded-md hover:bg-gray-500"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSave}
-            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-          >
-            Save
-          </button>
         </div>
       )}
     </div>
