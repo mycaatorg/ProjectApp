@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import authRoutes from './routes/auth';
 import dashboardRoutes from './routes/dashboard';
+import collegeRoutes from "./routes/college";
 
 
 // Load environment variables
@@ -36,6 +37,7 @@ mongoose
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/user', dashboardRoutes);
+app.use("/api/colleges", collegeRoutes);
 
 // Start the server
 const PORT = process.env.PORT || 5000;
