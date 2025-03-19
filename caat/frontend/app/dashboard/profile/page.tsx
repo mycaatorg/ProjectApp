@@ -54,7 +54,7 @@ export default function MyProfilePage() {
           facebook: responseData?.user?.facebook || "",
           instagram: responseData?.user?.instagram || "",
         });
-        setOriginalData(responseData?.user);
+        setOriginalData(responseData?.user); // Save original data
       } else {
         console.error("Failed to fetch profile data");
       }
@@ -86,14 +86,20 @@ export default function MyProfilePage() {
       });
 
       if (response.ok) {
-        setIsEditing(false);
-        fetchData();
+        setIsEditing(false); // Exit edit mode
+        fetchData(); // Refresh profile data
       } else {
         console.error("Failed to update profile");
       }
     } catch (error) {
       console.error("Error updating profile:", error);
     }
+  };
+
+  // Handle canceling edits
+  const handleCancel = () => {
+    setUserData(originalData); // Restore original data
+    setIsEditing(false);
   };
 
   return (
@@ -116,143 +122,67 @@ export default function MyProfilePage() {
         <p>Loading...</p>
       ) : (
         <div className="space-y-3">
-          {/* Name */}
-          <div>
-            <label className="text-gray-700 font-medium">NickName</label>
-            <input
-              type="text"
-              className="w-full p-2 border rounded-md"
-              value={userData.name}
-              onChange={(e) =>
-                setUserData({ ...userData, name: e.target.value })
-              }
-              disabled={!isEditing}
-            />
-          </div>
+          {/* Standard Input Fields */}
+          {[
+            { label: "NickName", key: "name" },
+            { label: "Age", key: "age", type: "number" },
+            { label: "School", key: "school" },
+            { label: "Major", key: "major" },
+            { label: "Languages", key: "languages" },
+          ].map(({ label, key, type }) => (
+            <div key={key}>
+              <label className="text-gray-700 font-medium">{label}</label>
+              <input
+                type={type || "text"}
+                className="w-full p-2 border rounded-md"
+                value={userData[key]}
+                onChange={(e) =>
+                  setUserData({ ...userData, [key]: e.target.value })
+                }
+                disabled={!isEditing}
+              />
+            </div>
+          ))}
 
-          {/* Age */}
-          <div>
-            <label className="text-gray-700 font-medium">Age</label>
-            <input
-              type="number"
-              className="w-full p-2 border rounded-md"
-              value={userData.age}
-              onChange={(e) =>
-                setUserData({ ...userData, age: e.target.value })
-              }
-              disabled={!isEditing}
-            />
-          </div>
+          {/* Social Media Links - Separate for Each */}
+          {[
+            { label: "LinkedIn", key: "linkedIn" },
+            { label: "GitHub", key: "github" },
+            { label: "Personal Portfolio", key: "portfolio" },
+            { label: "Facebook", key: "facebook" },
+            { label: "Instagram", key: "instagram" },
+          ].map(({ label, key }) => (
+            <div key={key}>
+              <label className="text-gray-700 font-medium">{label}</label>
+              {isEditing ? (
+                <input
+                  type="text"
+                  className="w-full p-2 border rounded-md"
+                  value={userData[key]}
+                  onChange={(e) =>
+                    setUserData({ ...userData, [key]: e.target.value })
+                  }
+                  disabled={!isEditing}
+                />
+              ) : userData[key] ? (
+                <a
+                  href={userData[key]}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-500 hover:underline"
+                >
+                  {userData[key]}
+                </a>
+              ) : (
+                <p className="text-gray-500">No link added</p>
+              )}
+            </div>
+          ))}
 
-          {/* Email */}
-          <div>
-            <label className="text-gray-700 font-medium">Email</label>
-            <input
-              type="email"
-              className="w-full p-2 border rounded-md"
-              value={userData.email}
-              disabled
-            />
-          </div>
-
-          {/* School */}
-          <div>
-            <label className="text-gray-700 font-medium">School</label>
-            <input
-              type="text"
-              className="w-full p-2 border rounded-md"
-              value={userData.school}
-              onChange={(e) =>
-                setUserData({ ...userData, school: e.target.value })
-              }
-              disabled={!isEditing}
-            />
-          </div>
-
-          {/* Major */}
-          <div>
-            <label className="text-gray-700 font-medium">Major</label>
-            <input
-              type="text"
-              className="w-full p-2 border rounded-md"
-              value={userData.major}
-              onChange={(e) =>
-                setUserData({ ...userData, major: e.target.value })
-              }
-              disabled={!isEditing}
-            />
-          </div>
-
-          {/* Languages */}
-          <div>
-            <label className="text-gray-700 font-medium">Languages</label>
-            <input
-              type="text"
-              className="w-full p-2 border rounded-md"
-              value={userData.languages}
-              onChange={(e) =>
-                setUserData({ ...userData, languages: e.target.value })
-              }
-              disabled={!isEditing}
-            />
-          </div>
-
-          {/* LinkedIn */}
-          <div>
-            <label className="text-gray-700 font-medium">LinkedIn</label>
-            <input
-              type="text"
-              className="w-full p-2 border rounded-md"
-              value={userData.linkedIn}
-              onChange={(e) =>
-                setUserData({ ...userData, linkedIn: e.target.value })
-              }
-              disabled={!isEditing}
-            />
-            {!isEditing && userData.linkedIn && (
-              <a
-                href={userData.linkedIn}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-600 hover:underline"
-              >
-                Visit LinkedIn
-              </a>
-            )}
-          </div>
-
-          {/* GitHub */}
-          <div>
-            <label className="text-gray-700 font-medium">GitHub</label>
-            <input
-              type="text"
-              className="w-full p-2 border rounded-md"
-              value={userData.github}
-              onChange={(e) =>
-                setUserData({ ...userData, github: e.target.value })
-              }
-              disabled={!isEditing}
-            />
-            {!isEditing && userData.github && (
-              <a
-                href={userData.github}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-600 hover:underline"
-              >
-                Visit GitHub
-              </a>
-            )}
-          </div>
-
-          {/* Save/Cancel Buttons */}
           {isEditing && (
             <div className="flex justify-end space-x-3 mt-4">
               <button
-                onClick={() => {
-                  setUserData(originalData);
-                  setIsEditing(false);
-                }}
+                onClick={handleCancel}
                 className="bg-gray-400 text-white px-4 py-2 rounded-md hover:bg-gray-500"
               >
                 Cancel
