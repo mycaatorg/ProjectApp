@@ -3,8 +3,22 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+
+  const navItems = [
+    { href: "/dashboard/profile", label: "My Profile" },
+    { href: "/dashboard/colleges", label: "Colleges" },
+    { href: "/dashboard/courses", label: "Courses" },
+    { href: "/dashboard/essays", label: "Essays" },
+    { href: "/dashboard/extracurriculars", label: "Extracurriculars" },
+    { href: "/dashboard/scholarships", label: "Scholarships" },
+    { href: "/dashboard/evaluate", label: "Evaluate Application" },
+    { href: "/dashboard/chat", label: "Chat CAAT" },
+  ];
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
       {/* Header */}
@@ -34,14 +48,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Sidebar */}
         <aside className="bg-white w-1/4 p-6 shadow-md flex flex-col">
           <nav className="space-y-4 text-gray-700 ml-16">
-            <Link href="/dashboard/profile" className="block hover:text-red-600">My Profile</Link>
-            <Link href="/dashboard/colleges" className="block hover:text-red-600">Colleges</Link>
-            <Link href="/dashboard/courses" className="block hover:text-red-600">Courses</Link>
-            <Link href="/dashboard/essays" className="block hover:text-red-600">Essays</Link>
-            <Link href="/dashboard/extracurriculars" className="block hover:text-red-600">Extracurriculars</Link>
-            <Link href="/dashboard/scholarships" className="block hover:text-red-600">Scholarships</Link>
-            <Link href="/dashboard/evaluate" className="block hover:text-red-600">Evaluate Application</Link>
-            <Link href="/dashboard/chat" className="block hover:text-red-600">Chat CAAT</Link>
+            {navItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`block px-4 py-2 rounded-md hover:bg-gray-100 ${
+                  pathname === item.href ? "bg-gray-200 font-medium" : ""
+                }`}                
+              >
+                {item.label}
+              </Link>
+            ))}
           </nav>
         </aside>
 
