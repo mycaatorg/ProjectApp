@@ -60,6 +60,7 @@ export default function CollegeSearch() {
         onChange={(e) => setCountry(e.target.value)}
       >
         <option value="">All Countries</option>
+        <option value="Australia">Australia</option>
         <option value="United States">United States</option>
         <option value="Canada">Canada</option>
         <option value="United Kingdom">United Kingdom</option>
