@@ -1,13 +1,16 @@
+// caat/backend/routes/colleges.ts
+
 import { Router, Request, Response } from "express";
 import College from "../models/Colleges";
+import { collegeSortOptions } from "../utils/sortOptions";
 
 const router = Router();
 
-// GET /api/colleges - Fetch colleges based on search & country
 router.get("/", async (req: Request, res: Response) => {
   try {
     const search = req.query.search as string;
     const country = req.query.country as string;
+    const sort = req.query.sort as string;
 
     const query: any = {};
     if (search) {
@@ -17,7 +20,10 @@ router.get("/", async (req: Request, res: Response) => {
       query.country = country;
     }
 
-    const colleges = await College.find(query);
+    // Get sort option from the shared utility
+    const sortOption = collegeSortOptions[sort] || {};
+
+    const colleges = await College.find(query).sort(sortOption);
     res.status(200).json({ colleges });
   } catch (error) {
     console.error("Error fetching colleges:", error);

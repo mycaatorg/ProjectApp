@@ -6,6 +6,7 @@ import { College } from "@/types/express/college";
 export default function CollegeSearch() {
   const [search, setSearch] = useState("");
   const [country, setCountry] = useState("");
+  const [sort, setSort] = useState("alpha");
   const [colleges, setColleges] = useState<College[]>([]);
 
   const API_BASE_URL =
@@ -14,21 +15,20 @@ export default function CollegeSearch() {
 
   useEffect(() => {
     fetchColleges();
-  }, [search, country]);
+  }, [search, country, sort]);
 
   const fetchColleges = async () => {
     try {
       const response = await fetch(
-        `${API_BASE_URL}/api/colleges?search=${search}&country=${country}`
+        `${API_BASE_URL}/api/colleges?search=${search}&country=${country}&sort=${sort}`
       );
       const data = await response.json();
 
-      // ✅ Ensure data is an array before setting state
       if (Array.isArray(data.colleges)) {
         setColleges(data.colleges);
       } else {
         console.error("Invalid API response:", data);
-        setColleges([]); // Reset state if API is incorrect
+        setColleges([]);
       }
     } catch (error) {
       console.error("Error fetching colleges:", error);
@@ -58,6 +58,18 @@ export default function CollegeSearch() {
         <option value="United States">United States</option>
         <option value="Canada">Canada</option>
         <option value="United Kingdom">United Kingdom</option>
+      </select>
+
+      {/* Sort Filter */}
+      <select
+        className="w-full p-2 border rounded-md mb-6"
+        value={sort}
+        onChange={(e) => setSort(e.target.value)}
+      >
+        <option value="alpha">Alphabetical (A-Z)</option>
+        <option value="alpha-desc">Alphabetical (Z-A)</option>
+        <option value="country">Country (A-Z)</option>
+        <option value="country-desc">Country (Z-A)</option>
       </select>
 
       {/* University List */}
