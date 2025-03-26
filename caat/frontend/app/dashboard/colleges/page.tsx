@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { College } from "@/types/express/college";
-import LoadingSpinner from "@/components/LoadingSpinner";
+import LoadingSpinner from "@/components/loadingSpinner";
 
 export default function CollegeSearch() {
   const [search, setSearch] = useState("");
