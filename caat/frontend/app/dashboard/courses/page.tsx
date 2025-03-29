@@ -9,6 +9,18 @@ const studyFields = [
   "Arts",
   "Engineering",
   "Information Technology",
+  "Law",
+  "Psychology",
+  "Education",
+  "Economics",
+  "Environmental Science",
+  "Media and Communication",
+  "Political Science",
+  "Design",
+  "Data Science",
+  "Management",
+  "Architecture",
+  "International Relations"
 ];
 
 export default function CoursesPage() {
