@@ -1,14 +1,17 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function EssayEditorPage() {
+  const router = useRouter();
   const { essayId } = useParams();
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
   const API_BASE_URL =
     process.env.NEXT_PUBLIC_API_BASE_URL ||
@@ -17,11 +20,10 @@ export default function EssayEditorPage() {
   const token =
     typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
-  // Format title from slug
   const formatTitle = (id: string | string[] | undefined) =>
     id?.toString().replace(/-/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
 
-  // 🔄 Load essay from backend
+  // Load essay content
   const fetchEssay = async () => {
     if (!essayId || !token) return;
 
@@ -52,7 +54,7 @@ export default function EssayEditorPage() {
     fetchEssay();
   }, [essayId]);
 
-  // 💾 Save essay to backend
+  // Save essay content
   const handleSave = async () => {
     if (!token) return;
 
@@ -71,6 +73,7 @@ export default function EssayEditorPage() {
 
       if (response.ok) {
         setMessage("Essay saved successfully!");
+        setLastSaved(new Date());
       } else {
         setMessage("Failed to save essay.");
       }
@@ -84,6 +87,29 @@ export default function EssayEditorPage() {
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
+      {/* 🔙 Back and breadcrumb */}
+      <div className="flex items-center justify-between mb-4">
+        <button
+          onClick={() => router.back()}
+          className="text-blue-600 hover:underline text-sm"
+        >
+          ← Go Back
+        </button>
+
+        <div className="text-sm text-gray-500 italic space-x-1">
+          <Link href="/dashboard" className="hover:underline text-blue-600">
+            Dashboard
+          </Link>
+          <span>/</span>
+          <Link href="/dashboard/essays" className="hover:underline text-blue-600">
+            Essays
+          </Link>
+          <span>/</span>
+          <span>{formatTitle(essayId)}</span>
+        </div>
+      </div>
+
+      {/* ✍️ Essay Editor */}
       <h1 className="text-2xl font-bold mb-4 text-gray-800">
         {formatTitle(essayId)}
       </h1>
@@ -109,9 +135,14 @@ export default function EssayEditorPage() {
               {saving ? "Saving..." : "Save Essay"}
             </button>
 
-            {message && (
-              <p className="text-sm text-gray-600 ml-4">{message}</p>
-            )}
+            <div className="text-sm text-gray-600 ml-4">
+              {message && <p>{message}</p>}
+              {lastSaved && (
+                <p className="text-xs mt-1 italic">
+                  Last saved at {lastSaved.toLocaleTimeString()}
+                </p>
+              )}
+            </div>
           </div>
         </>
       )}
