@@ -2,22 +2,32 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import LoadingSpinner from "@/components/loadingSpinner";
+
 
 export default function LoginPage() {
   const router = useRouter();
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false); // NEW
 
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
+    setLoading(true);
+    setMessage(null);
+    setError(null);
 
     // Extract form data
     const form = event.target as HTMLFormElement;
     const email = form.email.value;
     const password = form.password.value;
 
+    // ⏳ Set a timeout to show "Waking up" message if backend is slow
+    const wakeTimeout = setTimeout(() => {
+      setMessage("Waking up server... Please hang tight.");
+    }, 2000);
+
     try {
-      // Send login data to backend
       const response = await fetch("https://caat-projectapp.onrender.com/api/auth/login", {
         method: "POST",
         headers: {
@@ -26,27 +36,28 @@ export default function LoginPage() {
         body: JSON.stringify({ email, password }),
       });
 
+      clearTimeout(wakeTimeout); // Cancel timeout when we get a response
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || "Login failed");
       }
 
-      const data = await response.json(); // Parse JSON response
+      const data = await response.json();
 
-      // Save token in localStorage or sessionStorage
       localStorage.setItem("token", data.token);
 
-      // Show success message and redirect
       setMessage("Login successful!");
       setError(null);
       setTimeout(() => {
-        router.push("/dashboard"); // Redirect to dashboard
+        router.push("/dashboard");
       }, 2000);
     } catch (err) {
-      console.error("Error:", err);
-
-      setMessage(null); // Clear success message
+      clearTimeout(wakeTimeout);
+      setMessage(null);
       setError(err instanceof Error ? err.message : "An unexpected error occurred.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -63,7 +74,7 @@ export default function LoginPage() {
           <h1 className="text-center text-2xl font-semibold text-white mb-4">Login</h1>
 
           {/* Display Success or Error Messages */}
-          {message && <p className="text-center text-sm text-green-700 mb-4">{message}</p>}
+          {message && <p className="text-center text-sm text-yellow-100 mb-4">{message}</p>}
           {error && <p className="text-center text-sm text-red-700 mb-4">{error}</p>}
 
           <form onSubmit={handleLogin} className="space-y-4">
@@ -90,11 +101,13 @@ export default function LoginPage() {
             <button
               type="submit"
               className="w-full bg-gray-600 text-white py-2 px-4 rounded-md hover:bg-gray-700 transition"
+              disabled={loading}
             >
-              Login
+              {loading ? "Logging in..." : "Login"}
             </button>
           </form>
-
+          {loading && <LoadingSpinner text="Waking up server..." />}
+          
           <p className="text-center text-sm mt-4 text-white">
             Don’t have an account?{" "}
             <a href="/auth/register" className="text-black hover:underline">Register</a>
