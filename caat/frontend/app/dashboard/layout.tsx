@@ -16,6 +16,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { href: "/dashboard/essays", label: "Essays" },
     { href: "/dashboard/extracurriculars", label: "Extracurriculars" },
     { href: "/dashboard/scholarships", label: "Scholarships" },
+    { href: "/dashboard/resume", label: "Resume" },
     { href: "/dashboard/evaluate", label: "Evaluate Application" },
     { href: "/dashboard/chat", label: "Chat CAAT" },
   ];
