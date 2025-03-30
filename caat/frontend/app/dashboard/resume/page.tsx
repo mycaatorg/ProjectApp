@@ -28,9 +28,16 @@ type SortableBlockProps = {
   label: string;
   content: string;
   onChange: (id: string, value: string) => void;
+  onSave: (id: string) => void;
 };
 
-function SortableBlock({ id, label, content, onChange }: SortableBlockProps) {
+function SortableBlock({
+  id,
+  label,
+  content,
+  onChange,
+  onSave,
+}: SortableBlockProps) {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id });
 
@@ -43,10 +50,16 @@ function SortableBlock({ id, label, content, onChange }: SortableBlockProps) {
     <div
       ref={setNodeRef}
       style={style}
-      {...attributes}
-      {...listeners}
-      className="bg-white p-4 rounded-md shadow border cursor-move"
+      className="bg-white p-4 rounded-md shadow border"
     >
+      <div
+        {...attributes}
+        {...listeners}
+        className="text-gray-500 text-xs cursor-move mb-2"
+      >
+        Drag to reorder
+      </div>
+
       <h2 className="text-lg font-semibold mb-2">{label}</h2>
 
       <textarea
@@ -58,7 +71,12 @@ function SortableBlock({ id, label, content, onChange }: SortableBlockProps) {
         style={{ height: `${Math.max(80, content.split("\n").length * 24)}px` }}
       />
 
-      <p className="text-xs text-gray-400 mt-2">Drag to reorder</p>
+      <button
+        onClick={() => onSave(id)}
+        className="mt-2 px-4 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+      >
+        Save
+      </button>
     </div>
   );
 }
@@ -75,59 +93,50 @@ export default function ResumeBuilderPage() {
   const token =
     typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
-  // Fetch resume data
   useEffect(() => {
-        const fetchResume = async () => {
-          if (!token) return;
-      
-          try {
-            const res = await fetch(`${API_BASE_URL}/api/resume`, {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            });
-      
-            if (res.ok) {
-              const data = await res.json();
-              const saved = data.resume?.sections;
-      
-              if (!saved || saved.length === 0) {
-                // 🔁 Use fallback if no saved resume
-                setSections([
-                  { id: "personal", label: "🧍 Personal Info", content: "" },
-                  { id: "education", label: "📘 Education", content: "" },
-                  { id: "extracurriculars", label: "🎯 Extracurriculars", content: "" },
-                  { id: "awards", label: "🏆 Awards", content: "" },
-                  { id: "skills", label: "🧠 Skills & Interests", content: "" },
-                ]);
-              } else {
-                setSections(saved);
-              }
-            } else if (res.status === 404) {
-              // No resume found (new user)
-              setSections([
-                { id: "personal", label: "🧍 Personal Info", content: "" },
-                { id: "education", label: "📘 Education", content: "" },
-                { id: "extracurriculars", label: "🎯 Extracurriculars", content: "" },
-                { id: "awards", label: "🏆 Awards", content: "" },
-                { id: "skills", label: "🧠 Skills & Interests", content: "" },
-              ]);
-            } else {
-              console.error("Failed to load resume");
-            }
-          } catch (err) {
-            console.error("Resume fetch error:", err);
-          } finally {
-            setLoading(false);
-          }
-        };
-      
-        fetchResume();
-      }, [token]);
-      
+    const fetchResume = async () => {
+      if (!token) return;
 
-  // Handle drag + reorder
-  function handleDragEnd(event: any) {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/resume`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          const saved = data.resume?.sections;
+
+          if (!saved || saved.length === 0) {
+            setSections(defaultSections);
+          } else {
+            setSections(saved);
+          }
+        } else if (res.status === 404) {
+          setSections(defaultSections);
+        } else {
+          console.error("Failed to load resume");
+        }
+      } catch (err) {
+        console.error("Resume fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchResume();
+  }, [token]);
+
+  const defaultSections: Section[] = [
+    { id: "personal", label: "🧍 Personal Info", content: "" },
+    { id: "education", label: "📘 Education", content: "" },
+    { id: "extracurriculars", label: "🎯 Extracurriculars", content: "" },
+    { id: "awards", label: "🏆 Awards", content: "" },
+    { id: "skills", label: "🧠 Skills & Interests", content: "" },
+  ];
+
+  const handleDragEnd = (event: any) => {
     const { active, over } = event;
     if (active.id !== over?.id) {
       const oldIndex = sections.findIndex((s) => s.id === active.id);
@@ -136,18 +145,23 @@ export default function ResumeBuilderPage() {
       setSections(newSections);
       saveResume(newSections);
     }
-  }
+  };
 
-  // Handle editing text
   const handleContentChange = (id: string, value: string) => {
     const updated = sections.map((section) =>
       section.id === id ? { ...section, content: value } : section
     );
     setSections(updated);
-    saveResume(updated);
   };
 
-  // Save to backend
+  const handleSectionSave = (id: string) => {
+    const toSave = sections.map((s) => ({
+      ...s,
+      content: s.id === id ? s.content : s.content,
+    }));
+    saveResume(toSave);
+  };
+
   const saveResume = async (data: Section[]) => {
     if (!token) return;
     try {
@@ -177,7 +191,10 @@ export default function ResumeBuilderPage() {
           onDragEnd={handleDragEnd}
           modifiers={[restrictToVerticalAxis]}
         >
-          <SortableContext items={sections.map((s) => s.id)} strategy={verticalListSortingStrategy}>
+          <SortableContext
+            items={sections.map((s) => s.id)}
+            strategy={verticalListSortingStrategy}
+          >
             <div className="space-y-6">
               {sections.map((section) => (
                 <SortableBlock
@@ -186,6 +203,7 @@ export default function ResumeBuilderPage() {
                   label={section.label}
                   content={section.content}
                   onChange={handleContentChange}
+                  onSave={handleSectionSave}
                 />
               ))}
             </div>
