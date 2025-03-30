@@ -26,27 +26,40 @@ const sections = [
 ];
 
 function SortableBlock({ id, label }: { id: string; label: string }) {
-  const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
-
-  return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      {...listeners}
-      className="bg-white p-4 rounded-md shadow border cursor-move"
-    >
-      <h2 className="text-lg font-semibold mb-2">{label}</h2>
-      <p className="text-sm text-gray-500">Drag to reorder this section</p>
-    </div>
-  );
-}
+        const { attributes, listeners, setNodeRef, transform, transition } =
+          useSortable({ id });
+      
+        const [content, setContent] = useState("");
+      
+        const style = {
+          transform: CSS.Transform.toString(transform),
+          transition,
+        };
+      
+        return (
+          <div
+            ref={setNodeRef}
+            style={style}
+            {...attributes}
+            {...listeners}
+            className="bg-white p-4 rounded-md shadow border cursor-move"
+          >
+            <h2 className="text-lg font-semibold mb-3">{label}</h2>
+      
+            <textarea
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder="Type your content here..."
+              rows={1}
+              className="w-full p-2 border border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+              style={{ height: `${Math.max(80, content.split("\n").length * 24)}px` }}
+            />
+      
+            <p className="text-xs text-gray-400 mt-2">Drag this section to reorder</p>
+          </div>
+        );
+      }
+      
 
 export default function ResumeBuilderPage() {
   const [items, setItems] = useState(sections);
