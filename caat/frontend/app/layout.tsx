@@ -1,11 +1,7 @@
-"use client";
-
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Link from "next/link";
-import Image from "next/image";
-import { useState } from "react";
+import Header from "@/components/Header"; // ✅ import your new header
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,38 +23,12 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [showContact, setShowContact] = useState(false);
-
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {/* Navigation Bar */}
-        <nav className="bg-gray-800 text-white p-4 flex items-center relative">
-          {/* Logo Section */}
-          <Link href="/" className="flex items-center">
-            <Image src="/logo.png" alt="Logo" width={40} height={40} />
-            <span className="ml-2 font-bold text-lg">CAAT</span>
-          </Link>
-
-          {/* Right Side - Contact Us */}
-          <div className="ml-auto relative">
-            <button
-              onClick={() => setShowContact(!showContact)}
-              className="hover:underline font-medium"
-            >
-              Contact Us
-            </button>
-
-            {showContact && (
-              <div className="absolute right-0 mt-2 bg-white text-black rounded-md shadow-md px-4 py-2 text-sm z-10">
-                📧 <span className="font-medium">caat1225@gmail.com</span>
-              </div>
-            )}
-          </div>
-        </nav>
-
+        <Header /> {/* ✅ Inject your client-side header */}
         <main>{children}</main>
       </body>
     </html>
