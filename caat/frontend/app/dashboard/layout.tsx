@@ -3,10 +3,11 @@
 import React, { useState, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [showTasks, setShowTasks] = useState(false);
 
   const navItems = [
@@ -29,25 +30,46 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { label: "Submit at least 1 essay", done: false },
   ];
 
-  // Auto-calculate progress % based on tasks completed
+  // Calculate % completed
   const progressPercent = useMemo(() => {
     const completed = tasks.filter((t) => t.done).length;
     return Math.round((completed / tasks.length) * 100);
   }, [tasks]);
 
+  // 🔒 Logout function
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    router.push("/"); // Redirect to landing page
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
       {/* Header */}
       <header className="flex justify-around items-center bg-white shadow-md py-4">
-        <Link href="/dashboard" className="block hover:text-black text-red-600 text-lg font-semibold">
+        <Link
+          href="/dashboard"
+          className="block hover:text-black text-red-600 text-lg font-semibold"
+        >
           User
         </Link>
         <div className="flex items-center">
           <Link href="/dashboard">
-            <Image src="/logo.png" alt="CAAT Logo" width={225} height={225} className="cursor-pointer" />
+            <Image
+              src="/logo.png"
+              alt="CAAT Logo"
+              width={225}
+              height={225}
+              className="cursor-pointer"
+            />
           </Link>
         </div>
-        <button className="text-red-600 font-semibold hover:underline">Explore</button>
+        {/* Logout replaces login/register */}
+        <button
+          onClick={handleLogout}
+          className="text-red-600 font-semibold hover:underline"
+        >
+          Logout
+        </button>
       </header>
 
       {/* Progress Tracker */}
@@ -70,7 +92,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         {showTasks && (
           <div className="mt-6 max-w-3xl mx-auto bg-white p-6 rounded-md shadow">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">Your Application Checklist</h2>
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">
+              Your Application Checklist
+            </h2>
             <ul className="space-y-2">
               {tasks.map((task, index) => (
                 <li key={index} className="flex items-center">
@@ -108,7 +132,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </nav>
         </aside>
 
-        {/* Main Content */}
+        {/* Dynamic Content */}
         <main className="flex-grow p-6">{children}</main>
       </div>
     </div>
