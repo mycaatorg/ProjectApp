@@ -77,40 +77,54 @@ export default function ResumeBuilderPage() {
 
   // Fetch resume data
   useEffect(() => {
-    const fetchResume = async () => {
-      if (!token) return;
-
-      try {
-        const res = await fetch(`${API_BASE_URL}/api/resume`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (res.ok) {
-          const data = await res.json();
-          setSections(data.resume.sections || []);
-        } else if (res.status === 404) {
-          // No resume found, fallback to default layout
-          setSections([
-            { id: "personal", label: "🧍 Personal Info", content: "" },
-            { id: "education", label: "📘 Education", content: "" },
-            { id: "extracurriculars", label: "🎯 Extracurriculars", content: "" },
-            { id: "awards", label: "🏆 Awards", content: "" },
-            { id: "skills", label: "🧠 Skills & Interests", content: "" },
-          ]);
-        } else {
-          console.error("Failed to load resume");
-        }
-      } catch (err) {
-        console.error("Resume fetch error:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchResume();
-  }, [token]);
+        const fetchResume = async () => {
+          if (!token) return;
+      
+          try {
+            const res = await fetch(`${API_BASE_URL}/api/resume`, {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            });
+      
+            if (res.ok) {
+              const data = await res.json();
+              const saved = data.resume?.sections;
+      
+              if (!saved || saved.length === 0) {
+                // 🔁 Use fallback if no saved resume
+                setSections([
+                  { id: "personal", label: "🧍 Personal Info", content: "" },
+                  { id: "education", label: "📘 Education", content: "" },
+                  { id: "extracurriculars", label: "🎯 Extracurriculars", content: "" },
+                  { id: "awards", label: "🏆 Awards", content: "" },
+                  { id: "skills", label: "🧠 Skills & Interests", content: "" },
+                ]);
+              } else {
+                setSections(saved);
+              }
+            } else if (res.status === 404) {
+              // No resume found (new user)
+              setSections([
+                { id: "personal", label: "🧍 Personal Info", content: "" },
+                { id: "education", label: "📘 Education", content: "" },
+                { id: "extracurriculars", label: "🎯 Extracurriculars", content: "" },
+                { id: "awards", label: "🏆 Awards", content: "" },
+                { id: "skills", label: "🧠 Skills & Interests", content: "" },
+              ]);
+            } else {
+              console.error("Failed to load resume");
+            }
+          } catch (err) {
+            console.error("Resume fetch error:", err);
+          } finally {
+            setLoading(false);
+          }
+        };
+      
+        fetchResume();
+      }, [token]);
+      
 
   // Handle drag + reorder
   function handleDragEnd(event: any) {
