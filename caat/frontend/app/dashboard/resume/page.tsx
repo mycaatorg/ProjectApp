@@ -31,34 +31,42 @@ type SortableBlockProps = {
 };
 
 function SortableBlock({ id, label, content, onChange }: SortableBlockProps) {
-  const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
-
-  return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      {...listeners}
-      className="bg-white p-4 rounded-md shadow border"
-    >
-      <h2 className="text-lg font-semibold mb-2">{label}</h2>
-      <textarea
-        value={content}
-        onChange={(e) => onChange(id, e.target.value)}
-        placeholder="Type here..."
-        className="w-full p-2 border border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-        style={{ minHeight: "100px" }}
-      />
-      <p className="text-xs text-gray-400 mt-2">Drag to reorder</p>
-    </div>
-  );
-}
+        const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
+      
+        const style = {
+          transform: CSS.Transform.toString(transform),
+          transition,
+        };
+      
+        return (
+          <div
+            ref={setNodeRef}
+            style={style}
+            className="bg-white p-4 rounded-md shadow border"
+          >
+            {/* Drag handle */}
+            <h2
+              className="text-lg font-semibold mb-2 cursor-move"
+              {...attributes}
+              {...listeners}
+            >
+              {label}
+            </h2>
+      
+            {/* Textarea (no listeners here) */}
+            <textarea
+              value={content}
+              onChange={(e) => onChange(id, e.target.value)}
+              placeholder="Type here..."
+              className="w-full p-2 border border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+              style={{ minHeight: "100px" }}
+            />
+      
+            <p className="text-xs text-gray-400 mt-2">Drag to reorder</p>
+          </div>
+        );
+      }
+      
 
 export default function ResumeBuilderPage() {
   const [sections, setSections] = useState<Section[]>([]);
