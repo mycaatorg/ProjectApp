@@ -25,13 +25,34 @@ router.post('/register', async (req: Request, res: Response): Promise<void> => {
       lastName,
       email,
       password: hashedPassword,
-      age: null, // Ensure new users have fields
+      age: null,
       school: "",
       major: "",
     });
 
     await newUser.save();
-    res.status(201).json({ message: 'User registered successfully!' });
+
+    // Generate token for the new user
+    const token = jwt.sign(
+      { userId: newUser._id, email: newUser.email },
+      process.env.JWT_SECRET!,
+      { expiresIn: '2h' }
+    );
+
+    // Return token + user
+    res.status(201).json({
+      message: 'User registered successfully!',
+      token,
+      user: {
+        id: newUser._id,
+        firstName: newUser.firstName,
+        lastName: newUser.lastName,
+        email: newUser.email,
+        age: newUser.age,
+        school: newUser.school,
+        major: newUser.major,
+      },
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error' });

@@ -1,17 +1,17 @@
 "use client";
+
 import React, { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const [message, setMessage] = useState<string | null>(null); // Success message
-  const [error, setError] = useState<string | null>(null); // Error message
+  const [message, setMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const handleRegister = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    // Extract form data
     const form = event.target as HTMLFormElement;
     const firstName = form.firstName.value;
     const lastName = form.lastName.value;
@@ -19,7 +19,6 @@ export default function RegisterPage() {
     const password = form.password.value;
 
     try {
-      // Send registration data to backend
       const response = await fetch("https://caat-projectapp.onrender.com/api/auth/register", {
         method: "POST",
         headers: {
@@ -33,51 +32,46 @@ export default function RegisterPage() {
         throw new Error(errorData.message || "Registration failed");
       }
 
-      // If successful, show success message and navigate
+      const data = await response.json();
+
+      // 🔐 Store token and (optionally) user data
+      localStorage.removeItem("token");
+      localStorage.setItem("token", data.token);
+
+      // Optional: store user info
+      // localStorage.setItem("user", JSON.stringify(data.user));
+
+      // Show success message and navigate
       setMessage("Registration successful!");
-      setError(null); // Clear any previous errors
+      setError(null);
       setTimeout(() => {
-        router.push("/auth/setup"); // Navigate to setup page
-      }, 2000); // Delay navigation for user to see the message
+        router.push("/auth/setup"); // or "/dashboard"
+      }, 2000);
     } catch (err) {
       console.error("Error:", err);
-
-      setMessage(null); // Clear any previous success message
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("An unexpected error occurred.");
-      }
+      setMessage(null);
+      setError(err instanceof Error ? err.message : "An unexpected error occurred.");
     }
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="flex flex-col items-center w-full">
-        {/* Logo Section */}
+        {/* Logo */}
         <div className="mb-6">
           <Image src="/logo.png" alt="CAAT Logo" width={300} height={300} />
         </div>
 
         {/* Register Form */}
         <div className="bg-red-500 p-6 rounded-md shadow-lg w-full max-w-md">
-          <h1 className="text-center text-2xl font-semibold text-white mb-4">
-            Register
-          </h1>
+          <h1 className="text-center text-2xl font-semibold text-white mb-4">Register</h1>
 
-          {/* Display Success or Error Messages */}
-          {message && (
-            <p className="text-center text-sm text-green-700 mb-4">{message}</p>
-          )}
-          {error && (
-            <p className="text-center text-sm text-red-700 mb-4">{error}</p>
-          )}
+          {message && <p className="text-center text-sm text-green-700 mb-4">{message}</p>}
+          {error && <p className="text-center text-sm text-red-700 mb-4">{error}</p>}
 
           <form onSubmit={handleRegister} className="space-y-4">
             <div>
-              <label htmlFor="firstName" className="block text-sm text-white">
-                First Name
-              </label>
+              <label htmlFor="firstName" className="block text-sm text-white">First Name</label>
               <input
                 type="text"
                 id="firstName"
@@ -87,9 +81,7 @@ export default function RegisterPage() {
               />
             </div>
             <div>
-              <label htmlFor="lastName" className="block text-sm text-white">
-                Last Name
-              </label>
+              <label htmlFor="lastName" className="block text-sm text-white">Last Name</label>
               <input
                 type="text"
                 id="lastName"
@@ -99,9 +91,7 @@ export default function RegisterPage() {
               />
             </div>
             <div>
-              <label htmlFor="email" className="block text-sm text-white">
-                Email
-              </label>
+              <label htmlFor="email" className="block text-sm text-white">Email</label>
               <input
                 type="email"
                 id="email"
@@ -111,9 +101,7 @@ export default function RegisterPage() {
               />
             </div>
             <div>
-              <label htmlFor="password" className="block text-sm text-white">
-                Password
-              </label>
+              <label htmlFor="password" className="block text-sm text-white">Password</label>
               <input
                 type="password"
                 id="password"
@@ -132,9 +120,7 @@ export default function RegisterPage() {
 
           <p className="text-center text-sm mt-4 text-white">
             Already have an account?{" "}
-            <a href="/auth/login" className="text-black hover:underline">
-              Login
-            </a>
+            <a href="/auth/login" className="text-black hover:underline">Login</a>
           </p>
         </div>
       </div>
