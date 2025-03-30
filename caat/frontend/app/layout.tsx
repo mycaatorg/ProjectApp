@@ -5,8 +5,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,54 +24,37 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const router = useRouter();
-
-  // Check token on mount
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    setIsLoggedIn(!!token);
-  }, []);
-
-  // Logout handler
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    setIsLoggedIn(false);
-    router.push("/"); // Back to landing page
-  };
+}) {
+  const [showContact, setShowContact] = useState(false);
 
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
         {/* Navigation Bar */}
-        <nav className="bg-gray-800 text-white p-4 flex items-center">
+        <nav className="bg-gray-800 text-white p-4 flex items-center relative">
           {/* Logo Section */}
           <Link href="/" className="flex items-center">
             <Image src="/logo.png" alt="Logo" width={40} height={40} />
             <span className="ml-2 font-bold text-lg">CAAT</span>
           </Link>
 
-          {/* Auth Links or Logout */}
-          <div className="ml-auto flex space-x-4">
-            {isLoggedIn ? (
-              <button
-                onClick={handleLogout}
-                className="hover:underline text-red-300"
-              >
-                Logout
-              </button>
-            ) : (
-              <>
-                <Link href="/auth/login" className="hover:underline">
-                  Login
-                </Link>
-                <Link href="/auth/register" className="hover:underline">
-                  Register
-                </Link>
-              </>
+          {/* Right Side - Contact Us */}
+          <div className="ml-auto relative">
+            <button
+              onClick={() => setShowContact(!showContact)}
+              className="hover:underline font-medium"
+            >
+              Contact Us
+            </button>
+
+            {showContact && (
+              <div className="absolute right-0 mt-2 bg-white text-black rounded-md shadow-md px-4 py-2 text-sm z-10">
+                📧 <span className="font-medium">caat1225@gmail.com</span>
+              </div>
             )}
           </div>
         </nav>
