@@ -4,7 +4,7 @@ import Essay from "../models/Essay";
 
 const router = Router();
 
-// 🔍 Get saved essay for logged-in user
+// Get saved essay for logged-in user
 router.get("/:type", authenticateToken, async (req: Request, res: Response) => {
   try {
     const userId = req.user?.userId;
@@ -19,7 +19,7 @@ router.get("/:type", authenticateToken, async (req: Request, res: Response) => {
   }
 });
 
-// 💾 Save or update essay
+// Save or update essay
 router.post("/:type", authenticateToken, async (req: Request, res: Response) => {
   try {
     const userId = req.user?.userId;

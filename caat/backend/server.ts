@@ -6,6 +6,7 @@ import authRoutes from './routes/auth';
 import dashboardRoutes from './routes/dashboard';
 import collegeRoutes from "./routes/college";
 import essayRoutes from "./routes/essays";
+import resumeRoutes from "./routes/resume";
 
 
 // Load environment variables
@@ -40,6 +41,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/user', dashboardRoutes);
 app.use("/api/colleges", collegeRoutes);
 app.use("/api/essays", essayRoutes);
+app.use("/api/resume", resumeRoutes);
 
 // Start the server
 const PORT = process.env.PORT || 5000;
