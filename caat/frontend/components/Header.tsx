@@ -26,7 +26,7 @@ export default function Header() {
 
         {showContact && (
           <div className="absolute right-0 mt-2 bg-white text-black rounded-md shadow-md px-4 py-2 text-sm z-10">
-            📧 <span className="font-medium">caat1225@gmail.com</span>
+            <span className="font-medium">caat1225@gmail.com</span>
           </div>
         )}
       </div>
