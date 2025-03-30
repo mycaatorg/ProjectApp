@@ -1,8 +1,12 @@
+"use client";
+
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
 import Image from "next/image";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,32 +28,52 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const router = useRouter();
+
+  // Check token on mount
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setIsLoggedIn(!!token);
+  }, []);
+
+  // Logout handler
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setIsLoggedIn(false);
+    router.push("/"); // Back to landing page
+  };
+
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         {/* Navigation Bar */}
         <nav className="bg-gray-800 text-white p-4 flex items-center">
           {/* Logo Section */}
           <Link href="/" className="flex items-center">
-            <Image
-              src="/logo.png" // Path to your logo in the public folder
-              alt="Logo"
-              width={40}
-              height={40}
-            />
+            <Image src="/logo.png" alt="Logo" width={40} height={40} />
             <span className="ml-2 font-bold text-lg">CAAT</span>
           </Link>
 
-          {/* Links Section */}
+          {/* Auth Links or Logout */}
           <div className="ml-auto flex space-x-4">
-            <Link href="/auth/login" className="hover:underline">
-              Login
-            </Link>
-            <Link href="/auth/register" className="hover:underline">
-              Register
-            </Link>
+            {isLoggedIn ? (
+              <button
+                onClick={handleLogout}
+                className="hover:underline text-red-300"
+              >
+                Logout
+              </button>
+            ) : (
+              <>
+                <Link href="/auth/login" className="hover:underline">
+                  Login
+                </Link>
+                <Link href="/auth/register" className="hover:underline">
+                  Register
+                </Link>
+              </>
+            )}
           </div>
         </nav>
 

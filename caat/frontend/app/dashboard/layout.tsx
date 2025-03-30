@@ -3,11 +3,10 @@
 import React, { useState, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const router = useRouter();
   const [showTasks, setShowTasks] = useState(false);
 
   const navItems = [
@@ -21,7 +20,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { href: "/dashboard/chat", label: "Chat CAAT" },
   ];
 
-  // Task list
   const tasks = [
     { label: "Complete Profile", done: true },
     { label: "Write Personal Statement", done: false },
@@ -30,17 +28,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { label: "Submit at least 1 essay", done: false },
   ];
 
-  // Calculate % completed
   const progressPercent = useMemo(() => {
     const completed = tasks.filter((t) => t.done).length;
     return Math.round((completed / tasks.length) * 100);
   }, [tasks]);
-
-  // 🔒 Logout function
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    router.push("/"); // Redirect to landing page
-  };
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
@@ -63,17 +54,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             />
           </Link>
         </div>
-        {/* Logout replaces login/register */}
-        <button
-          onClick={handleLogout}
-          className="text-red-600 font-semibold hover:underline"
-        >
-          Logout
-        </button>
+        <button className="text-red-600 font-semibold hover:underline">Explore</button>
       </header>
 
       {/* Progress Tracker */}
-      <div className={`bg-gray-200 px-6 transition-all duration-300 overflow-hidden ${showTasks ? "py-8" : "py-6"}`}>
+      <div
+        className={`bg-gray-200 px-6 transition-all duration-300 overflow-hidden ${
+          showTasks ? "py-8" : "py-6"
+        }`}
+      >
         <div className="flex items-center justify-center space-x-4">
           <button
             onClick={() => setShowTasks((prev) => !prev)}
@@ -103,7 +92,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                       task.done ? "bg-green-500" : "bg-gray-400"
                     }`}
                   ></span>
-                  <span className={task.done ? "text-gray-500 line-through" : "text-gray-800"}>
+                  <span
+                    className={
+                      task.done
+                        ? "text-gray-500 line-through"
+                        : "text-gray-800"
+                    }
+                  >
                     {task.label}
                   </span>
                 </li>
@@ -132,7 +127,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </nav>
         </aside>
 
-        {/* Dynamic Content */}
+        {/* Main Content */}
         <main className="flex-grow p-6">{children}</main>
       </div>
     </div>
