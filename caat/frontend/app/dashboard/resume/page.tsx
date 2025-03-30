@@ -28,16 +28,9 @@ type SortableBlockProps = {
   label: string;
   content: string;
   onChange: (id: string, value: string) => void;
-  onSave: (id: string) => void;
 };
 
-function SortableBlock({
-  id,
-  label,
-  content,
-  onChange,
-  onSave,
-}: SortableBlockProps) {
+function SortableBlock({ id, label, content, onChange }: SortableBlockProps) {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id });
 
@@ -50,33 +43,19 @@ function SortableBlock({
     <div
       ref={setNodeRef}
       style={style}
+      {...attributes}
+      {...listeners}
       className="bg-white p-4 rounded-md shadow border"
     >
-      <div
-        {...attributes}
-        {...listeners}
-        className="text-gray-500 text-xs cursor-move mb-2"
-      >
-        Drag to reorder
-      </div>
-
       <h2 className="text-lg font-semibold mb-2">{label}</h2>
-
       <textarea
         value={content}
         onChange={(e) => onChange(id, e.target.value)}
         placeholder="Type here..."
-        rows={1}
         className="w-full p-2 border border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-        style={{ height: `${Math.max(80, content.split("\n").length * 24)}px` }}
+        style={{ minHeight: "100px" }}
       />
-
-      <button
-        onClick={() => onSave(id)}
-        className="mt-2 px-4 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-      >
-        Save
-      </button>
+      <p className="text-xs text-gray-400 mt-2">Drag to reorder</p>
     </div>
   );
 }
@@ -84,14 +63,17 @@ function SortableBlock({
 export default function ResumeBuilderPage() {
   const [sections, setSections] = useState<Section[]>([]);
   const [loading, setLoading] = useState(true);
-
-  const sensors = useSensors(useSensor(PointerSensor));
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState("");
 
   const API_BASE_URL =
     process.env.NEXT_PUBLIC_API_BASE_URL ||
     "https://caat-projectapp.onrender.com";
+
   const token =
     typeof window !== "undefined" ? localStorage.getItem("token") : null;
+
+  const sensors = useSensors(useSensor(PointerSensor));
 
   useEffect(() => {
     const fetchResume = async () => {
@@ -99,9 +81,7 @@ export default function ResumeBuilderPage() {
 
       try {
         const res = await fetch(`${API_BASE_URL}/api/resume`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
 
         if (res.ok) {
@@ -109,17 +89,16 @@ export default function ResumeBuilderPage() {
           const saved = data.resume?.sections;
 
           if (!saved || saved.length === 0) {
-            setSections(defaultSections);
+            setSections(getDefaultSections());
           } else {
             setSections(saved);
           }
-        } else if (res.status === 404) {
-          setSections(defaultSections);
         } else {
-          console.error("Failed to load resume");
+          setSections(getDefaultSections());
         }
       } catch (err) {
         console.error("Resume fetch error:", err);
+        setSections(getDefaultSections());
       } finally {
         setLoading(false);
       }
@@ -128,7 +107,7 @@ export default function ResumeBuilderPage() {
     fetchResume();
   }, [token]);
 
-  const defaultSections: Section[] = [
+  const getDefaultSections = () => [
     { id: "personal", label: "🧍 Personal Info", content: "" },
     { id: "education", label: "📘 Education", content: "" },
     { id: "extracurriculars", label: "🎯 Extracurriculars", content: "" },
@@ -141,49 +120,63 @@ export default function ResumeBuilderPage() {
     if (active.id !== over?.id) {
       const oldIndex = sections.findIndex((s) => s.id === active.id);
       const newIndex = sections.findIndex((s) => s.id === over.id);
-      const newSections = arrayMove(sections, oldIndex, newIndex);
-      setSections(newSections);
-      saveResume(newSections);
+      setSections(arrayMove(sections, oldIndex, newIndex));
     }
   };
 
   const handleContentChange = (id: string, value: string) => {
-    const updated = sections.map((section) =>
-      section.id === id ? { ...section, content: value } : section
+    setSections((prev) =>
+      prev.map((section) =>
+        section.id === id ? { ...section, content: value } : section
+      )
     );
-    setSections(updated);
   };
 
-  const handleSectionSave = (id: string) => {
-    const toSave = sections.map((s) => ({
-      ...s,
-      content: s.id === id ? s.content : s.content,
-    }));
-    saveResume(toSave);
-  };
-
-  const saveResume = async (data: Section[]) => {
+  const saveResume = async () => {
     if (!token) return;
+    setSaving(true);
+    setMessage("");
+
     try {
-      await fetch(`${API_BASE_URL}/api/resume`, {
+      const res = await fetch(`${API_BASE_URL}/api/resume`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ sections: data }),
+        body: JSON.stringify({ sections }),
       });
+
+      if (res.ok) {
+        setMessage("Resume saved!");
+      } else {
+        setMessage("Failed to save resume.");
+      }
     } catch (err) {
-      console.error("Resume save error:", err);
+      console.error("Save error:", err);
+      setMessage("Error saving resume.");
+    } finally {
+      setSaving(false);
     }
   };
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6 text-gray-800">Resume Builder</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold text-gray-800">Resume Builder</h1>
+        <button
+          onClick={saveResume}
+          disabled={saving}
+          className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
+        >
+          {saving ? "Saving..." : "Save All"}
+        </button>
+      </div>
+
+      {message && <p className="text-sm text-green-600 mb-4">{message}</p>}
 
       {loading ? (
-        <p>Loading...</p>
+        <p>Loading resume...</p>
       ) : (
         <DndContext
           sensors={sensors}
@@ -203,7 +196,6 @@ export default function ResumeBuilderPage() {
                   label={section.label}
                   content={section.content}
                   onChange={handleContentChange}
-                  onSave={handleSectionSave}
                 />
               ))}
             </div>
