@@ -54,10 +54,7 @@ function SortableBlock({ id, label, content, onChange }: SortableBlockProps) {
         {label}
       </h2>
 
-      <RichTextEditor
-        content={content}
-        onChange={(value) => onChange(id, value)}
-      />
+      <RichTextEditor content={content} onChange={(val) => onChange(id, val)} />
 
       <p className="text-xs text-gray-400 mt-2">Drag to reorder</p>
     </div>
@@ -90,7 +87,7 @@ export default function ResumeBuilderPage() {
 
         if (res.ok) {
           const data = await res.json();
-          const saved = data.sections;
+          const saved = data.sections ?? data.resume?.sections;
 
           if (!saved || saved.length === 0) {
             setSections(getDefaultSections());
@@ -111,7 +108,7 @@ export default function ResumeBuilderPage() {
     fetchResume();
   }, [token]);
 
-  const getDefaultSections = () => [
+  const getDefaultSections = (): Section[] => [
     { id: "personal", label: "🧍 Personal Info", content: "" },
     { id: "education", label: "📘 Education", content: "" },
     { id: "extracurriculars", label: "🎯 Extracurriculars", content: "" },
@@ -195,7 +192,7 @@ export default function ResumeBuilderPage() {
             <div className="space-y-6">
               {sections.map((section) => (
                 <SortableBlock
-                key={`${section.id}-${section.content}`}
+                  key={section.id}
                   id={section.id}
                   label={section.label}
                   content={section.content}
