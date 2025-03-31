@@ -16,9 +16,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
-import { EditorContent, useEditor } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
-import TextAlign from "@tiptap/extension-text-align";
+import RichTextEditor from "@/components/RichTextEditor";
 
 type Section = {
   id: string;
@@ -34,44 +32,37 @@ type SortableBlockProps = {
 };
 
 function SortableBlock({ id, label, content, onChange }: SortableBlockProps) {
-        const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
-      
-        const style = {
-          transform: CSS.Transform.toString(transform),
-          transition,
-        };
-      
-        const editor = useEditor({
-          extensions: [StarterKit, TextAlign.configure({ types: ['paragraph'] })],
-          content: content || "",
-          onUpdate: ({ editor }) => {
-            onChange(id, editor.getHTML());
-          },
-        });
-      
-        return (
-          <div
-            ref={setNodeRef}
-            style={style}
-            className="bg-white p-4 rounded-md shadow border"
-          >
-            <h2
-              className="text-lg font-semibold mb-2 cursor-move"
-              {...attributes}
-              {...listeners}
-            >
-              {label}
-            </h2>
-      
-            <div className="border border-gray-300 rounded-md p-2 min-h-[120px] focus:outline-none">
-              <EditorContent editor={editor} />
-            </div>
-      
-            <p className="text-xs text-gray-400 mt-2">Drag to reorder</p>
-          </div>
-        );
-      }
-      
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="bg-white p-4 rounded-md shadow border"
+    >
+      <h2
+        className="text-lg font-semibold mb-2 cursor-move"
+        {...attributes}
+        {...listeners}
+      >
+        {label}
+      </h2>
+
+      <RichTextEditor
+        content={content}
+        onChange={(value) => onChange(id, value)}
+      />
+
+      <p className="text-xs text-gray-400 mt-2">Drag to reorder</p>
+    </div>
+  );
+}
 
 export default function ResumeBuilderPage() {
   const [sections, setSections] = useState<Section[]>([]);
@@ -99,7 +90,7 @@ export default function ResumeBuilderPage() {
 
         if (res.ok) {
           const data = await res.json();
-          const saved = data.resume?.sections;
+          const saved = data.sections;
 
           if (!saved || saved.length === 0) {
             setSections(getDefaultSections());
