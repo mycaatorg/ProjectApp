@@ -16,6 +16,9 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
+import { EditorContent, useEditor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import TextAlign from "@tiptap/extension-text-align";
 
 type Section = {
   id: string;
@@ -38,13 +41,20 @@ function SortableBlock({ id, label, content, onChange }: SortableBlockProps) {
           transition,
         };
       
+        const editor = useEditor({
+          extensions: [StarterKit, TextAlign.configure({ types: ['paragraph'] })],
+          content: content || "",
+          onUpdate: ({ editor }) => {
+            onChange(id, editor.getHTML());
+          },
+        });
+      
         return (
           <div
             ref={setNodeRef}
             style={style}
             className="bg-white p-4 rounded-md shadow border"
           >
-            {/* Drag handle */}
             <h2
               className="text-lg font-semibold mb-2 cursor-move"
               {...attributes}
@@ -53,14 +63,9 @@ function SortableBlock({ id, label, content, onChange }: SortableBlockProps) {
               {label}
             </h2>
       
-            {/* Textarea (no listeners here) */}
-            <textarea
-              value={content}
-              onChange={(e) => onChange(id, e.target.value)}
-              placeholder="Type here..."
-              className="w-full p-2 border border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-              style={{ minHeight: "100px" }}
-            />
+            <div className="border border-gray-300 rounded-md p-2 min-h-[120px] focus:outline-none">
+              <EditorContent editor={editor} />
+            </div>
       
             <p className="text-xs text-gray-400 mt-2">Drag to reorder</p>
           </div>
