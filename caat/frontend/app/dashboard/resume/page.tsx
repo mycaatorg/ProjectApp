@@ -195,7 +195,7 @@ export default function ResumeBuilderPage() {
             <div className="space-y-6">
               {sections.map((section) => (
                 <SortableBlock
-                  key={section.id}
+                key={`${section.id}-${section.content}`}
                   id={section.id}
                   label={section.label}
                   content={section.content}
