@@ -3,9 +3,11 @@
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import TextAlign from "@tiptap/extension-text-align";
+import FontFamily from "@tiptap/extension-font-family";
+import TextStyle from "@tiptap/extension-text-style";
 import React, { useEffect } from "react";
 
-//Reusable toolbar button
+// Reusable toolbar button
 const ToolbarButton = ({
   onClick,
   isActive,
@@ -39,6 +41,8 @@ export default function RichTextEditor({
   const editor = useEditor({
     extensions: [
       StarterKit,
+      TextStyle,
+      FontFamily.configure({ types: ["textStyle"] }),
       TextAlign.configure({ types: ["paragraph"] }),
     ],
     content,
@@ -47,7 +51,7 @@ export default function RichTextEditor({
 
   useEffect(() => {
     if (editor && content !== editor.getHTML()) {
-      editor.commands.setContent(content);
+      editor.commands.setContent(content, false);
     }
   }, [content, editor]);
 
@@ -55,7 +59,7 @@ export default function RichTextEditor({
 
   return (
     <div>
-      {/*Toolbar */}
+      {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-2 mb-3 bg-gray-100 p-2 rounded-md shadow-sm">
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleBold().run()}
@@ -91,9 +95,25 @@ export default function RichTextEditor({
         >
           Right
         </ToolbarButton>
+
+        <select
+          onChange={(e) =>
+            editor.chain().focus().setFontFamily(e.target.value).run()
+          }
+          value={editor.getAttributes("textStyle").fontFamily || "default"}
+          className="border rounded px-2 py-1 text-sm"
+        >
+          <option value="default">Font</option>
+          <option value="Arial">Arial</option>
+          <option value="Georgia">Georgia</option>
+          <option value="Times New Roman">Times New Roman</option>
+          <option value="Comic Sans MS">Comic Sans</option>
+          <option value="Verdana">Verdana</option>
+          <option value="Courier New">Courier</option>
+        </select>
       </div>
 
-      {/* ✍️ Editor */}
+      {/* Editor */}
       <div className="border border-gray-300 rounded-md p-2 min-h-[120px] focus:outline-none">
         <EditorContent editor={editor} />
       </div>
