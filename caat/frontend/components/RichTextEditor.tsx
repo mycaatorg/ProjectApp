@@ -6,8 +6,8 @@ import TextAlign from "@tiptap/extension-text-align";
 import FontFamily from "@tiptap/extension-font-family";
 import TextStyle from "@tiptap/extension-text-style";
 import React, { useEffect } from "react";
+import { FontSizeExtension } from "@/extensions/FontSize";
 
-// Reusable toolbar button
 const ToolbarButton = ({
   onClick,
   isActive,
@@ -20,9 +20,7 @@ const ToolbarButton = ({
   <button
     onClick={onClick}
     className={`px-2 py-1 rounded-md transition text-sm font-medium ${
-      isActive
-        ? "bg-blue-600 text-white"
-        : "bg-white text-gray-800 hover:bg-gray-200"
+      isActive ? "bg-blue-600 text-white" : "bg-white text-gray-800 hover:bg-gray-200"
     }`}
   >
     {children}
@@ -43,6 +41,7 @@ export default function RichTextEditor({
       StarterKit,
       TextStyle,
       FontFamily.configure({ types: ["textStyle"] }),
+      FontSizeExtension,
       TextAlign.configure({ types: ["paragraph"] }),
     ],
     content,
@@ -59,7 +58,6 @@ export default function RichTextEditor({
 
   return (
     <div>
-      {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-2 mb-3 bg-gray-100 p-2 rounded-md shadow-sm">
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleBold().run()}
@@ -111,9 +109,27 @@ export default function RichTextEditor({
           <option value="Verdana">Verdana</option>
           <option value="Courier New">Courier</option>
         </select>
+
+        <select
+  onChange={(e) =>
+    editor.chain().focus().setMark("textStyle", { fontSize: e.target.value }).run()
+  }
+  value={editor.getAttributes("textStyle").fontSize || "default"}
+  className="border rounded px-2 py-1 text-sm"
+>
+  <option value="default">Font Size</option>
+  <option value="12px">12</option>
+  <option value="14px">14</option>
+  <option value="16px">16</option>
+  <option value="18px">18</option>
+  <option value="20px">20</option>
+  <option value="24px">24</option>
+  <option value="28px">28</option>
+  <option value="32px">32</option>
+</select>
+
       </div>
 
-      {/* Editor */}
       <div className="border border-gray-300 rounded-md p-2 min-h-[120px] focus:outline-none">
         <EditorContent editor={editor} />
       </div>
