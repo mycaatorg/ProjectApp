@@ -8,7 +8,7 @@ CAAT (College Admissions Assistance Tool) is a full-stack web application design
 
 ## Frontend:
 
-## #app/
+## app/
 
     This is the core of the Next.js App Router structure.
 
