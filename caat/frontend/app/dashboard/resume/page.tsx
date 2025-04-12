@@ -17,6 +17,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import RichTextEditor from "@/components/RichTextEditor";
+import ResumePreview from "@/components/ResumePreview";
 
 type Section = {
   id: string;
@@ -179,29 +180,33 @@ export default function ResumeBuilderPage() {
       {loading ? (
         <p>Loading resume...</p>
       ) : (
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
-          modifiers={[restrictToVerticalAxis]}
-        >
-          <SortableContext
-            items={sections.map((s) => s.id)}
-            strategy={verticalListSortingStrategy}
+        <>
+          <ResumePreview sections={sections} />
+
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+            modifiers={[restrictToVerticalAxis]}
           >
-            <div className="space-y-6">
-              {sections.map((section) => (
-                <SortableBlock
-                  key={section.id}
-                  id={section.id}
-                  label={section.label}
-                  content={section.content}
-                  onChange={handleContentChange}
-                />
-              ))}
-            </div>
-          </SortableContext>
-        </DndContext>
+            <SortableContext
+              items={sections.map((s) => s.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <div className="space-y-6">
+                {sections.map((section) => (
+                  <SortableBlock
+                    key={section.id}
+                    id={section.id}
+                    label={section.label}
+                    content={section.content}
+                    onChange={handleContentChange}
+                  />
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
+        </>
       )}
     </div>
   );
