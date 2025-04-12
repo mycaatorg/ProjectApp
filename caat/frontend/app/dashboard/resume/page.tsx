@@ -111,11 +111,11 @@ export default function ResumeBuilderPage() {
   }, [token]);
 
   const getDefaultSections = (): Section[] => [
-    { id: "personal", label: "🧍 Personal Info", content: "" },
-    { id: "education", label: "📘 Education", content: "" },
-    { id: "extracurriculars", label: "🎯 Extracurriculars", content: "" },
-    { id: "awards", label: "🏆 Awards", content: "" },
-    { id: "skills", label: "🧠 Skills & Interests", content: "" },
+    { id: "personal", label: "Personal Info", content: "" },
+    { id: "education", label: "Education", content: "" },
+    { id: "extracurriculars", label: "Extracurriculars", content: "" },
+    { id: "awards", label: "Awards", content: "" },
+    { id: "skills", label: "Skills & Interests", content: "" },
   ];
 
   const handleDragEnd = (event: any) => {
