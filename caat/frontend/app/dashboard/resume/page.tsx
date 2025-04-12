@@ -188,7 +188,7 @@ export default function ResumeBuilderPage() {
               onClick={() => setShowPreview((prev) => !prev)}
               className="text-sm text-blue-600 underline hover:text-blue-800 transition"
             >
-              {showPreview ? "Hide Preview 👁️" : "Show Preview 👁️"}
+              {showPreview ? "Hide Preview" : "Show Preview"}
             </button>
           </div>
 
