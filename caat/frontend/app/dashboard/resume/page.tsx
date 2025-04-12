@@ -67,6 +67,7 @@ export default function ResumeBuilderPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
+  const [showPreview, setShowPreview] = useState(true);
 
   const API_BASE_URL =
     process.env.NEXT_PUBLIC_API_BASE_URL ||
@@ -181,8 +182,26 @@ export default function ResumeBuilderPage() {
         <p>Loading resume...</p>
       ) : (
         <>
-          <ResumePreview sections={sections} />
+          {/* Preview Toggle */}
+          <div className="flex justify-end mb-4">
+            <button
+              onClick={() => setShowPreview((prev) => !prev)}
+              className="text-sm text-blue-600 underline hover:text-blue-800 transition"
+            >
+              {showPreview ? "Hide Preview 👁️" : "Show Preview 👁️"}
+            </button>
+          </div>
 
+          {/* Animated Collapsible Preview */}
+          <div
+            className={`transition-all duration-300 ease-in-out overflow-hidden ${
+              showPreview ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
+            }`}
+          >
+            <ResumePreview sections={sections} />
+          </div>
+
+          {/* Resume Editor Section */}
           <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
