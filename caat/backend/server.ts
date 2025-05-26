@@ -8,6 +8,7 @@ import collegeRoutes from "./routes/college";
 import essayRoutes from "./routes/essays";
 import resumeRoutes from "./routes/resume";
 import healthRoute from './routes/health';
+import taskRoutes from './routes/tasks';
 
 
 // Load environment variables
@@ -44,6 +45,7 @@ app.use("/api/colleges", collegeRoutes);
 app.use("/api/essays", essayRoutes);
 app.use("/api/resume", resumeRoutes);
 app.use('/api/health', healthRoute);
+app.use('/api/tasks', taskRoutes);
 
 
 // Start the server
