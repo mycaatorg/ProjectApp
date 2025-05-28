@@ -9,7 +9,8 @@
     "build:server": "tsc -P tsconfig.server.json",
     "start": "next start",
     "start:server": "node dist/server.js",
-    "lint": "next lint"
+    "lint": "next lint",
+    "export": "next export"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
