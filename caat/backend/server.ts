@@ -18,6 +18,7 @@ const app = express();
 // Middleware to enable CORS
 const allowedOrigins = [
   'https://mycaat.com',
+  'https://www.mycaat.com',
   'https://project-app-flax.vercel.app', // Vercel frontend
   'https://projectapp-frontend.onrender.com', // NEW Render frontend URL
   'http://localhost:3000' // Local dev
