@@ -10,24 +10,27 @@ import resumeRoutes from "./routes/resume";
 import healthRoute from './routes/health';
 import taskRoutes from './routes/tasks';
 
-
 // Load environment variables
 dotenv.config();
 
 const app = express();
 
 // Middleware to enable CORS
+const allowedOrigins = [
+  'https://mycaat.com',
+  'https://project-app-flax.vercel.app', // Vercel frontend
+  'https://projectapp-frontend.onrender.com', // NEW Render frontend URL
+  'http://localhost:3000' // Local dev
+];
+
 app.use(cors({
-  origin: ['https://mycaat.com',
-          "https://project-app-flax.vercel.app", // Vercel frontend
-          "http://localhost:3000"
-  ], // Allow frontend
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allow all necessary methods
-  allowedHeaders: ['Content-Type', 'Authorization'], // Allow headers needed for the frontend
+  origin: allowedOrigins,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
 }));
 
-app.options("*", cors());
+app.options("*", cors()); // Pre-flight
 
 // Middleware to parse JSON
 app.use(express.json());
@@ -46,7 +49,6 @@ app.use("/api/essays", essayRoutes);
 app.use("/api/resume", resumeRoutes);
 app.use('/api/health', healthRoute);
 app.use('/api/tasks', taskRoutes);
-
 
 // Start the server
 const PORT = process.env.PORT || 5000;
