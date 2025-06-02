@@ -15,8 +15,7 @@ export default function EssayEditorPage() {
   const [wordCount, setWordCount] = useState(0);
 
   const API_BASE_URL =
-    process.env.NEXT_PUBLIC_API_BASE_URL ||
-    "https://caat-projectapp.onrender.com";
+    process.env.NEXT_PUBLIC_API_BASE_URL;
 
   const token =
     typeof window !== "undefined" ? localStorage.getItem("token") : null;

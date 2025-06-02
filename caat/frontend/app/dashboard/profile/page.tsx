@@ -24,8 +24,8 @@ export default function MyProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
 
   const API_BASE_URL =
-    process.env.NEXT_PUBLIC_API_BASE_URL ||
-    "https://caat-projectapp.onrender.com";
+    process.env.NEXT_PUBLIC_API_BASE_URL;
+
 
   const fetchData = async () => {
     const token =
