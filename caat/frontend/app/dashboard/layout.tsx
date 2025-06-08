@@ -1,13 +1,30 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTaskContext } from "@/context/TaskContext";
+
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [showTasks, setShowTasks] = useState(false);
+  
+
+  const taskLabels: { [key: string]: string } = {
+    fillNickname: "Complete Profile",
+    writeEssay: "Write Personal Statement",
+  };
+
+  const { taskData } = useTaskContext();
+  
+
+  const progressPercent = useMemo(() => {
+    const values = Object.values(taskData);
+    const completed = values.filter(Boolean).length;
+    return values.length > 0 ? Math.round((completed / values.length) * 100) : 0;
+  }, [taskData]);
 
   const navItems = [
     { href: "/dashboard/profile", label: "My Profile" },
@@ -19,21 +36,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { href: "/dashboard/scholarships", label: "Scholarships" },
     { href: "/dashboard/evaluate", label: "Evaluate Application" },
     { href: "/dashboard/chatCaat", label: "Chat CAAT" },
-    { href: "/dashboard/gameCaat", label: "Game CAAT" }
+    { href: "/dashboard/gameCaat", label: "Game CAAT" },
   ];
-
-  const tasks = [
-    { label: "Complete Profile", done: true },
-    { label: "Write Personal Statement", done: false },
-    { label: "Shortlist 3 Universities", done: false },
-    { label: "Add 1 Extracurricular", done: true },
-    { label: "Submit at least 1 essay", done: false },
-  ];
-
-  const progressPercent = useMemo(() => {
-    const completed = tasks.filter((t) => t.done).length;
-    return Math.round((completed / tasks.length) * 100);
-  }, [tasks]);
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
@@ -87,21 +91,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               Your Application Checklist
             </h2>
             <ul className="space-y-2">
-              {tasks.map((task, index) => (
-                <li key={index} className="flex items-center">
+              {Object.entries(taskLabels).map(([key, label]) => (
+                <li key={key} className="flex items-center">
                   <span
                     className={`inline-block w-4 h-4 mr-3 rounded-full ${
-                      task.done ? "bg-green-500" : "bg-gray-400"
+                      taskData[key] ? "bg-green-500" : "bg-gray-400"
                     }`}
                   ></span>
                   <span
                     className={
-                      task.done
+                      taskData[key]
                         ? "text-gray-500 line-through"
                         : "text-gray-800"
                     }
                   >
-                    {task.label}
+                    {label}
                   </span>
                 </li>
               ))}

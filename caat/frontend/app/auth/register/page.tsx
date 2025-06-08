@@ -9,6 +9,8 @@ export default function RegisterPage() {
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
   const handleRegister = async (event: React.FormEvent) => {
     event.preventDefault();
 
@@ -19,7 +21,7 @@ export default function RegisterPage() {
     const password = form.password.value;
 
     try {
-      const response = await fetch("https://caat-projectapp.onrender.com/api/auth/register", {
+      const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

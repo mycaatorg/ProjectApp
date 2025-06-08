@@ -12,8 +12,7 @@ export default function CollegeSearch() {
   const [loading, setLoading] = useState(false); // NEW
 
   const API_BASE_URL =
-    process.env.NEXT_PUBLIC_API_BASE_URL ||
-    "https://caat-projectapp.onrender.com";
+    process.env.NEXT_PUBLIC_API_BASE_URL;
 
   useEffect(() => {
     fetchColleges();
