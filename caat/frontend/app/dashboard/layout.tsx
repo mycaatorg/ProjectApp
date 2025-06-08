@@ -4,43 +4,20 @@ import React, { useState, useMemo, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTaskContext } from "@/context/TaskContext";
+
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [showTasks, setShowTasks] = useState(false);
-  const [taskData, setTaskData] = useState<{ [key: string]: boolean }>({});
+  
 
   const taskLabels: { [key: string]: string } = {
     fillNickname: "Complete Profile",
     writeEssay: "Write Personal Statement",
   };
 
-  useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/tasks`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
-  
-        if (!res.ok) {
-          console.error("Failed to fetch tasks. Status:", res.status);
-          return;
-        }
-  
-        const data = await res.json();
-        setTaskData(data);
-      } catch (err) {
-        console.error("Error fetching tasks:", err);
-      }
-    };
-  
-    fetchTasks();
-  }, []);
+  const { taskData } = useTaskContext();
   
 
   const progressPercent = useMemo(() => {
