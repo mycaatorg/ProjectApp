@@ -1,6 +1,6 @@
 export interface College {
         name: string;
         country: string;
-        website?: string;
+        web_pages: string;
       }
       
