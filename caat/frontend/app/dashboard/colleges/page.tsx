@@ -41,7 +41,7 @@ export default function CollegeSearch() {
 
   return (
     <div className="p-6 max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Search Universities</h1>
+      <h1 className="text-red-900 font-bold mb-4">Search Universities</h1>
 
       {/* Search Input */}
       <input
@@ -84,12 +84,12 @@ export default function CollegeSearch() {
         <div className="space-y-3">
           {colleges.length > 0 ? (
             colleges.map((college, index) => (
-              <div key={index} className="bg-gray-100 p-3 rounded-md">
-                <h2 className="text-lg font-semibold">{college.name}</h2>
-                <p className="text-gray-600">{college.country}</p>
-                {college.website && (
+              <div key={index} className="bg-black-100 p-3 rounded-md">
+                <h2 className="text-red-200 font-bold">{college.name}</h2>
+                <p className="text-red-600">{college.country}</p>
+                {college.web_pages && college.web_pages.length > 0 && (
                   <a
-                    href={college.website}
+                    href={college.web_pages[0]}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-600 hover:underline"
