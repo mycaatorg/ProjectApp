@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import { useTaskContext } from "@/context/TaskContext";
+
 
 export default function EssayEditorPage() {
   const router = useRouter();
@@ -17,13 +19,16 @@ export default function EssayEditorPage() {
   const API_BASE_URL =
     process.env.NEXT_PUBLIC_API_BASE_URL;
 
+  const { refreshTasks } = useTaskContext();
+
+
   const token =
     typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
   const formatTitle = (id: string | string[] | undefined) =>
     id?.toString().replace(/-/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
 
-  // 🔄 Load essay content
+  // Load essay content
   const fetchEssay = async () => {
     if (!essayId || !token) return;
 
@@ -55,7 +60,7 @@ export default function EssayEditorPage() {
     fetchEssay();
   }, [essayId]);
 
-  // 💾 Auto-save every 5 seconds
+  // Auto-save every 5 seconds
   useEffect(() => {
     if (!token || !essayId) return;
 
@@ -78,7 +83,7 @@ export default function EssayEditorPage() {
     return () => clearInterval(interval); // Cleanup on unmount
   }, [content, essayId, token]);
 
-  // 🖱️ Manual save (optional override)
+  //  Manual save (optional override)
   const handleSave = async () => {
     if (!token) return;
 
@@ -98,6 +103,7 @@ export default function EssayEditorPage() {
       if (response.ok) {
         setMessage("Essay saved successfully!");
         setLastSaved(new Date());
+        refreshTasks();
       } else {
         setMessage("Failed to save essay.");
       }
