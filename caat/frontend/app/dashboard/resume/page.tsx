@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { useRef } from "react";
 import {
   DndContext,
   closestCenter,
@@ -18,6 +19,8 @@ import { CSS } from "@dnd-kit/utilities";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import RichTextEditor from "@/components/RichTextEditor";
 import ResumePreview from "@/components/ResumePreview";
+import html2pdf from "html2pdf.js";
+
 
 type Section = {
   id: string;
@@ -134,6 +137,8 @@ export default function ResumeBuilderPage() {
     );
   };
 
+  const resumeRef = useRef<HTMLDivElement>(null);
+
   const saveResume = async () => {
     if (!token) return;
     setSaving(true);
@@ -162,17 +167,41 @@ export default function ResumeBuilderPage() {
     }
   };
 
+  const downloadResume = () => {
+    if (!resumeRef.current) return;
+  
+    const element = resumeRef.current;
+  
+    const opt = {
+      margin:       0.5,
+      filename:     'my_resume.pdf',
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2 },
+      jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+    };
+  
+    html2pdf().set(opt).from(element).save();
+  };  
+
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Resume Builder</h1>
-        <button
-          onClick={saveResume}
-          disabled={saving}
-          className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
-        >
-          {saving ? "Saving..." : "Save All"}
-        </button>
+        <div className="flex space-x-4">
+          <button
+            onClick={saveResume}
+            disabled={saving}
+            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
+          >
+            {saving ? "Saving..." : "Save All"}
+          </button>
+          <button
+            onClick={downloadResume}
+            className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition"
+          >
+            Download PDF
+          </button>
+        </div>
       </div>
 
       {message && <p className="text-sm text-green-600 mb-4">{message}</p>}
@@ -193,6 +222,7 @@ export default function ResumeBuilderPage() {
 
           {/* Animated Collapsible Preview */}
           <div
+            ref={resumeRef}
             className={`transition-all duration-300 ease-in-out overflow-hidden ${
               showPreview ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
             }`}
