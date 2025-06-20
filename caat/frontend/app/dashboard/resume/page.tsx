@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   DndContext,
   closestCenter,
@@ -19,8 +18,11 @@ import { CSS } from "@dnd-kit/utilities";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import RichTextEditor from "@/components/RichTextEditor";
 import ResumePreview from "@/components/ResumePreview";
-import html2pdf from "html2pdf.js";
 
+let html2pdf: any = null;
+if (typeof window !== "undefined") {
+  html2pdf = require("html2pdf.js");
+}
 
 type Section = {
   id: string;
@@ -71,13 +73,10 @@ export default function ResumeBuilderPage() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [showPreview, setShowPreview] = useState(true);
+  const resumeRef = useRef<HTMLDivElement>(null);
 
-  const API_BASE_URL =
-    process.env.NEXT_PUBLIC_API_BASE_URL;
-
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem("token") : null;
-
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
   const sensors = useSensors(useSensor(PointerSensor));
 
   useEffect(() => {
@@ -137,8 +136,6 @@ export default function ResumeBuilderPage() {
     );
   };
 
-  const resumeRef = useRef<HTMLDivElement>(null);
-
   const saveResume = async () => {
     if (!token) return;
     setSaving(true);
@@ -168,20 +165,20 @@ export default function ResumeBuilderPage() {
   };
 
   const downloadResume = () => {
-    if (!resumeRef.current) return;
-  
+    if (!resumeRef.current || !html2pdf) return;
+
     const element = resumeRef.current;
-  
+
     const opt = {
-      margin:       0.5,
-      filename:     'my_resume.pdf',
-      image:        { type: 'jpeg', quality: 0.98 },
-      html2canvas:  { scale: 2 },
-      jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+      margin: 0.5,
+      filename: "my_resume.pdf",
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
     };
-  
+
     html2pdf().set(opt).from(element).save();
-  };  
+  };
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -210,7 +207,6 @@ export default function ResumeBuilderPage() {
         <p>Loading resume...</p>
       ) : (
         <>
-          {/* Preview Toggle */}
           <div className="flex justify-end mb-4">
             <button
               onClick={() => setShowPreview((prev) => !prev)}
@@ -220,7 +216,6 @@ export default function ResumeBuilderPage() {
             </button>
           </div>
 
-          {/* Animated Collapsible Preview */}
           <div
             ref={resumeRef}
             className={`transition-all duration-300 ease-in-out overflow-hidden ${
@@ -230,7 +225,6 @@ export default function ResumeBuilderPage() {
             <ResumePreview sections={sections} />
           </div>
 
-          {/* Resume Editor Section */}
           <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
