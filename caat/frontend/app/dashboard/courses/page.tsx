@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useRouter } from 'next/navigation';
 
 const studyFields = [
   "Computer Science",
@@ -24,9 +25,11 @@ const studyFields = [
 ];
 
 export default function CoursesPage() {
+  const router = useRouter();
+
   const handleFieldClick = (field: string) => {
-    alert(`Coming soon: ${field} details!`);
-    // In future, you’ll route to: /dashboard/courses/${slug}
+    const slug = field.toLowerCase().replace(/\s+/g, '-');
+    router.push(`/dashboard/courses/${slug}`);
   };
 
   return (
@@ -49,3 +52,4 @@ export default function CoursesPage() {
     </div>
   );
 }
+
